@@ -1,0 +1,9 @@
+# Ignore tout sauf les fichiers .py et .txt
+*
+
+# Ne pas ignorer les fichiers .py et .txt
+!*.py
+!*.txt
+
+# Ne pas ignorer les dossiers et leur contenu (si les fichiers .py et .txt s'y trouvent)
+!*/
