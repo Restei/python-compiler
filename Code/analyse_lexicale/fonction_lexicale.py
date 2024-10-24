@@ -14,6 +14,7 @@ class Lexeur:
         self.token = None
         self.token_nombre =False
         self.fin_fichier = False
+        self.pile = [0]
     
     def lire(self):
         if(self.curseur_position >= len(self.contenu)):
@@ -24,7 +25,17 @@ class Lexeur:
             self.charactere_actuelle = self.contenu[self.position]
             if(self.charactere_actuelle == '\n'):
                 self.ligne_position +=1
-                
+
+    def retour(self):
+            if (self.curseur_position==0):
+                pass
+            else: 
+                self.position -=1
+                self.curseur_position -=1
+                self.charactere_actuelle = self.contenu[self.position]
+                if (self.charactere_actuelle == '\n'):
+                    self.ligne_position = 1
+
     def chiffre(self):
         if self.charactere_actuelle.isdigit():  
             return True
@@ -108,7 +119,10 @@ class Lexeur:
                         print(" ET", self.charactere_actuelle)
                     case '|':
                         print(" OU", self.charactere_actuelle)
-    
+                    case '"':
+                        print('"', self.charactere_actuelle)
+
+
     def mot_cle(self):
         match self.token:
             case 'if':
@@ -157,9 +171,9 @@ class Lexeur:
                 print("on affiche")
             case _:
                 if(self.token_nombre == False):
-                    print("c'est une variable",self.token)
+                    print("variable",self.token)
                 else:
-                    print("c'est un nombre",self.token)
+                    print("nombre",self.token)
 
     def Tokenisation(self):
         
@@ -175,28 +189,49 @@ class Lexeur:
                 self.token += self.charactere_actuelle               
         elif((self.chiffre()) & (self.token == None)):
             if(self.charactere_actuelle == '0'):
-                print("c'est un nombre",self.charactere_actuelle)
+                print("nombre",self.charactere_actuelle)
             else:
                 self.token = self.charactere_actuelle
                 self.token_nombre = True        
         else:
             match self.charactere_actuelle:
                 case '#':
-                    print("commentaire",self.charactere_actuelle)
+                    while self.charactere_actuelle!='\n':
+                        self.lire()
                 case ',':
                     print("virgule",self.charactere_actuelle)
                 case ':':
                     print("fin de la definion d'une boucle",self.charactere_actuelle)
                 case '%':
-                    print("reste de la dicision euclidienne",self.charactere_actuelle)
+                    print("reste de la division euclidienne",self.charactere_actuelle)
                 case '\n':
                     print("saut de ligne",'\\n')
+                    indent=0
+                    self.lire()
+                    while self.charactere_actuelle == ' ':
+                        indent+=1
+                        self.lire()
+                    self.retour()
+                    head = self.pile[0]
+                    if head==indent:
+                        pass
+                    elif head<indent:
+                        self.pile = [indent]+self.pile
+                        head=self.pile[0]
+                        print("BEGIN")
+                    else:
+                        while head>indent:
+                            print("END")
+                            self.pile = self.pile[1:]
+                            head = self.pile[0]
+                            if (head<indent):
+                                return "indentation error"         
                 case '(':
                     print("parenthèse ouvrante ",self.charactere_actuelle)
                 case ')':
                     print("parenthèse fermante ",self.charactere_actuelle)
                 case ' ':
-                    print("espace",self.charactere_actuelle)
+                    pass
                 case '-':
                     self.binary()
                 case '*':
