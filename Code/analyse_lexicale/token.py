@@ -172,3 +172,5 @@ class DedentToken(SpecialToken):
 #    une représentation lisible et utile des tokens pour les tests et le débogage.
 #    Cela produit une chaîne de caractères de la forme : `Token(Type: KEYWORD, Value: 'if', Ligne: 1, Colonne: 0)`
 #    où le type de token, sa valeur et sa position dans le fichier source sont clairement indiqués.
+
+# Test de la nouvelle branche 
