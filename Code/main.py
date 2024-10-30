@@ -1,9 +1,14 @@
-from analyse_lexicale.fonction_lexicale import Lexeur,lire_fichier
+from analyse_lexicale.fonction_lexicale import Lexeur,lire_fichier,affichage_fichier
+from analyse_lexicale.token import TokenType, BaseToken
 
-Lex1 = Lexeur(lire_fichier("mini_python/expression.py"))
+Lex1 = Lexeur(lire_fichier("mini_python/variable.py"))
 
 #print(lire_fichier("mini_python/variable.py"))
-while(Lex1.fin_fichier != True):
-    Lex1.lire()
-    Lex1.Tokenisation()
+
+Tokens = Lex1.Tokenisation()
+affichage_fichier("mini_python/variable.py")
+print("\n")
+
+for token in Tokens:
+    print(repr(token))
     
