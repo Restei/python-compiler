@@ -32,6 +32,7 @@ class Lexeur:
         self.token = None
         self.token_nombre = False
         self.fin_fichier = False
+        self.pile_indent = [0]
 
     def lire(self):
         if self.curseur_position >= self.taille:
@@ -95,7 +96,11 @@ class Lexeur:
             return IdentifierToken(self.token, self.ligne_position, self.position)
 
     def Identification(self,tokens):
-        if (self.charactere() or self.charactere_actuelle == '_') & (self.token is None):
+        if self.charactere_actuelle == '#':
+            while self.charactere_actuelle != '\n':
+                self.lire()
+            self.Identification(tokens)
+        elif (self.charactere() or self.charactere_actuelle == '_') & (self.token is None):
                 self.token = self.charactere_actuelle
                 
         elif self.token:

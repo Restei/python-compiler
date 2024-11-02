@@ -39,7 +39,10 @@ class TokenType(Enum):
             '+': 'PLUS',
             '-': 'MINUS',
             '!': 'NOT',
-            '~': 'BITWISE_NOT'
+            '~': 'BITWISE_NOT',
+            '=': 'EQUAL',
+            '*': 'PRODUCT',
+            '/': 'DIV'
         }
         return unaires.get(token, None)
 
