@@ -8,8 +8,8 @@ class TokenType(Enum):
     OPERATOR_UNARY = 'OPERATOR_UNARY'
     OPERATOR_BINARY = 'OPERATOR_BINARY'
     PUNCTUATION = 'PUNCTUATION'
-    INDENT = 'INDENT'
-    DEDENT = 'DEDENT'
+    BEGIN = 'INDENT'
+    END = 'DEDENT'
     NEWLINE = 'NEWLINE'
     EOF = 'EOF'
 
@@ -42,7 +42,10 @@ class TokenType(Enum):
             '~': 'BITWISE_NOT',
             '=': 'EQUAL',
             '*': 'PRODUCT',
-            '/': 'DIV'
+            '/': 'DIV',
+            '%': 'MOD',
+            '>': 'GREATER',
+            '<': 'LESS'
         }
         return unaires.get(token, None)
 
@@ -85,11 +88,11 @@ class NewlineToken(BaseToken):
 
 class IndentToken(BaseToken):
     def __init__(self, line, column):
-        super().__init__(TokenType.INDENT, 'INDENT', line, column)
+        super().__init__(TokenType.BEGIN, '', line, column)
 
 class DedentToken(BaseToken):
     def __init__(self, line, column):
-        super().__init__(TokenType.DEDENT, 'DEDENT', line, column)
+        super().__init__(TokenType.END, '', line, column)
 
 class OperatorUnaryToken(BaseToken):
     def __init__(self, value, line, column):

@@ -1,5 +1,5 @@
 import re
-from analyse_lexicale.token import TokenType, BaseToken, KeywordToken, OperatorToken, LiteralToken, IdentifierToken, PunctuationToken, NewlineToken, OperatorUnaryToken, OperatorBinaryToken
+from analyse_lexicale.token import TokenType, BaseToken, KeywordToken, OperatorToken, LiteralToken, IdentifierToken, PunctuationToken, NewlineToken, OperatorUnaryToken, OperatorBinaryToken,IndentToken,DedentToken
 
 
 def lire_fichier(source):
@@ -49,6 +49,10 @@ class Lexeur:
             return self.contenu[self.curseur_position + 1]
         return None
 
+    def next_line(self):
+        while self.charactere_actuelle != '\n':
+            self.lire()
+
     def chiffre(self):
         return self.charactere_actuelle.isdigit()
 
@@ -97,8 +101,7 @@ class Lexeur:
 
     def Identification(self,tokens):
         if self.charactere_actuelle == '#':
-            while self.charactere_actuelle != '\n':
-                self.lire()
+            self.next_line()
             self.Identification(tokens)
         elif (self.charactere() or self.charactere_actuelle == '_') & (self.token is None):
                 self.token = self.charactere_actuelle
@@ -130,7 +133,26 @@ class Lexeur:
                 self.token = None
                 self.token_nombre = False
             tokens.append(NewlineToken(self.ligne_position, self.position))
-        
+
+            count_indent = 0
+            head = self.pile_indent[0]
+            while self.peek() == ' ':
+                if self.peek()=='#':
+                    self.next_line()
+                    count_indent=0
+                count_indent+=1
+                self.lire()
+            if count_indent==head:
+                pass
+            elif count_indent>head:
+                self.pile_indent = [count_indent] + self.pile_indent
+                tokens.append(IndentToken(self.ligne_position,self.position))
+            else:
+                if count_indent in self.pile_indent:
+                    while count_indent!=head:
+                        tokens.append(DedentToken(self.ligne_position,self.position))
+                        self.pile_indent = self.pile_indent[1:]
+                        head = self.pile_indent[0]
         
         elif self.charactere_actuelle in '(){}[]':
             tokens.append(PunctuationToken(self.charactere_actuelle, self.ligne_position, self.position))
