@@ -1,5 +1,5 @@
 import re
-from token import TokenType, BaseToken, KeywordToken, OperatorToken, LiteralToken, IdentifierToken, PunctuationToken, NewlineToken, OperatorUnaryToken, OperatorBinaryToken
+from analyse_lexicale.token import TokenType, BaseToken, KeywordToken, OperatorToken, LiteralToken, IdentifierToken, PunctuationToken, NewlineToken, OperatorUnaryToken, OperatorBinaryToken
 
 
 def lire_fichier(source):
@@ -7,10 +7,24 @@ def lire_fichier(source):
         contenu = fichier.read()
     return contenu
 
+def affichage_fichier(source):
+    with open(source, 'r') as fichier:
+        contenu = fichier.read()
+        print("La taille du contenu est:", len(contenu))
+        for lettre in contenu:
+            if lettre == "\n":
+                print("\\n")  # Saut de ligne
+            elif lettre == "\t":
+                print("\\t")  # Tabulation
+            else:
+                print(lettre, end="")  
+                
+    return "Affichage terminé"
 
 class Lexeur:
     def __init__(self, contenu):
-        self.contenu = contenu
+        self.contenu = contenu + " "
+        self.taille = len(self.contenu)
         self.position = -1
         self.ligne_position = 1
         self.curseur_position = 0
@@ -20,7 +34,7 @@ class Lexeur:
         self.fin_fichier = False
 
     def lire(self):
-        if self.curseur_position >= len(self.contenu):
+        if self.curseur_position >= self.taille:
             self.fin_fichier = True
         else:
             self.position += 1
@@ -47,12 +61,12 @@ class Lexeur:
         operator_type = TokenType.is_unary_operator(self.charactere_actuelle)
         if operator_type:
             
-            return OperatorUnaryToken(self.charactere_actuelle, self.ligne_position, self.curseur_position)
+            return OperatorUnaryToken(self.charactere_actuelle, self.ligne_position, self.position)
         return None  
 
     def binary(self):
       
-        if self.curseur_position + 1 < len(self.contenu):
+        if self.curseur_position + 1 < self.taille:
             next_charactere = self.contenu[self.curseur_position]
             binary_token = self.charactere_actuelle + next_charactere
 
@@ -60,7 +74,7 @@ class Lexeur:
             if operator_type:
                 
                 self.lire()  
-                return OperatorBinaryToken(binary_token, self.ligne_position, self.curseur_position)
+                return OperatorBinaryToken(binary_token, self.ligne_position, self.position)
             else:
                 return self.unary_operator()
         else:
@@ -74,67 +88,69 @@ class Lexeur:
         }
 
         if self.token in keywords:
-            return KeywordToken(self.token, self.ligne_position, self.curseur_position)
+            return KeywordToken(self.token, self.ligne_position, self.position)
         elif self.token_nombre:
-            return LiteralToken(self.token, self.ligne_position, self.curseur_position)
+            return LiteralToken(self.token, self.ligne_position, self.position)
         else:
-            return IdentifierToken(self.token, self.ligne_position, self.curseur_position)
+            return IdentifierToken(self.token, self.ligne_position, self.position)
 
+    def Identification(self,tokens):
+        if (self.charactere() or self.charactere_actuelle == '_') & (self.token is None):
+                self.token = self.charactere_actuelle
+                
+        elif self.token:
+            if not self.fin_de_mot():
+                self.token += self.charactere_actuelle
+            else:
+                tokens.append(self.mot_cle())
+                self.token = None
+                self.token_nombre = False
+        
+        
+        elif self.chiffre() & (not self.token):
+            self.token = self.charactere_actuelle
+            self.token_nombre = True
+            if(self.charactere_actuelle == '0'):
+                tokens.append(LiteralToken(self.token, self.ligne_position, self.position))
+                self.token = None
+                self.token_nombre = False
+            else:
+                self.token = self.charactere_actuelle
+                self.token_nombre = True   
+        
+        
+        elif self.charactere_actuelle == '\n':
+            if self.token:
+                tokens.append(self.mot_cle())
+                self.token = None
+                self.token_nombre = False
+            tokens.append(NewlineToken(self.ligne_position, self.position))
+        
+        
+        elif self.charactere_actuelle in '(){}[]':
+            tokens.append(PunctuationToken(self.charactere_actuelle, self.ligne_position, self.position))
+        
+        
+        else:
+            if self.token:
+                tokens.append(self.mot_cle())
+                self.token = None
+                self.token_nombre = False
+        
+            
+            operator_token = self.binary()  
+            if operator_token:
+                tokens.append(operator_token)
+                
     def Tokenisation(self):
         tokens = []
 
         while not self.fin_fichier:
             self.lire()
-
-            
-            if self.charactere() or self.charactere_actuelle == '_':
-                if self.token is None:
-                    self.token = self.charactere_actuelle
-                elif not self.fin_de_mot():
-                    self.token += self.charactere_actuelle
-                else:
-                    
-                    tokens.append(self.mot_cle())
-                    self.token = None
-
-            
-            elif self.chiffre():
-                if not self.token:
-                    self.token = self.charactere_actuelle
-                    self.token_nombre = True
-                elif self.token_nombre:
-                    self.token += self.charactere_actuelle
-                else:
-                    tokens.append(self.mot_cle())
-                    self.token = self.charactere_actuelle
-                    self.token_nombre = True
-
-            
-            elif self.charactere_actuelle == '\n':
-                if self.token:
-                    tokens.append(self.mot_cle())
-                    self.token = None
-                    self.token_nombre = False
-                tokens.append(NewlineToken(self.ligne_position, self.curseur_position))
-
-            
-            elif self.charactere_actuelle in '(){}[]':
-                tokens.append(PunctuationToken(self.charactere_actuelle, self.ligne_position, self.curseur_position))
-
-            
-            else:
-                if self.token:
-                    tokens.append(self.mot_cle())
-                    self.token = None
-                    self.token_nombre = False
-
-                
-                operator_token = self.binary()  
-                if operator_token:
-                    tokens.append(operator_token)
-
+            self.Identification(tokens)
+        
         # Ajouter le token EOF à la fin
-        tokens.append(BaseToken(TokenType.EOF, '', self.ligne_position, self.curseur_position))
+        tokens.append(BaseToken(TokenType.EOF, '', self.ligne_position, self.position))
         return tokens
 
 

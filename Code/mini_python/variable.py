@@ -1,4 +1,4 @@
 
-ab = 1
-ad = 1
-ac = ab +ad
+ab2 = 0
+ad = 13
+ac = ab2 +ad
