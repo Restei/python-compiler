@@ -1,5 +1,5 @@
 import re
-from analyse_lexicale.token import TokenType, BaseToken, KeywordToken, OperatorToken, LiteralToken, IdentifierToken, PunctuationToken, NewlineToken, OperatorUnaryToken, OperatorBinaryToken,IndentToken,DedentToken
+from analyse_lexicale.token import TokenType, BaseToken, KeywordToken, OperatorToken, LiteralToken, IdentifierToken, PunctuationToken, OperatorUnaryToken, OperatorBinaryToken,IndentToken,DedentToken,StringToken
 
 
 def lire_fichier(source):
@@ -32,6 +32,7 @@ class Lexeur:
         self.token = None
         self.token_nombre = False
         self.fin_fichier = False
+        self.is_string = False
         self.pile_indent = [0]
 
     def lire(self):
@@ -103,11 +104,18 @@ class Lexeur:
         if self.charactere_actuelle == '#':
             self.next_line()
             self.Identification(tokens)
+        
+        elif (self.charactere=="\"" and not self.is_string):
+            self.token = None
+            self.token_nombre = False
+
         elif (self.charactere() or self.charactere_actuelle == '_') & (self.token is None):
                 self.token = self.charactere_actuelle
                 
         elif self.token:
-            if not self.fin_de_mot():
+            if self.is_string:
+                self.token += self.charactere_actuelle
+            elif not self.fin_de_mot():
                 self.token += self.charactere_actuelle
             else:
                 tokens.append(self.mot_cle())
@@ -132,16 +140,15 @@ class Lexeur:
                 tokens.append(self.mot_cle())
                 self.token = None
                 self.token_nombre = False
-            tokens.append(NewlineToken(self.ligne_position, self.position))
 
             count_indent = 0
             head = self.pile_indent[0]
             while self.peek() == ' ':
+                count_indent+=1
+                self.lire()
                 if self.peek()=='#':
                     self.next_line()
                     count_indent=0
-                count_indent+=1
-                self.lire()
             if count_indent==head:
                 pass
             elif count_indent>head:

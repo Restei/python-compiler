@@ -10,8 +10,8 @@ class TokenType(Enum):
     PUNCTUATION = 'PUNCTUATION'
     BEGIN = 'INDENT'
     END = 'DEDENT'
-    NEWLINE = 'NEWLINE'
     EOF = 'EOF'
+    STRING = 'STRING'
 
     
     @classmethod
@@ -28,7 +28,10 @@ class TokenType(Enum):
             '//': 'FLOOR_DIV',
             '<<': 'SHIFT_LEFT',
             '>>': 'SHIFT_RIGHT',
-            '**': 'POWER'
+            '**': 'POWER',
+            '-=': 'SUBTRACT',
+            '+=': 'ADD',
+            '*=': 'MULTIPLY'
         }
         return binaires.get(token, None)
 
@@ -82,10 +85,6 @@ class PunctuationToken(BaseToken):
     def __init__(self, value, line, column):
         super().__init__(TokenType.PUNCTUATION, value, line, column)
 
-class NewlineToken(BaseToken):
-    def __init__(self, line, column):
-        super().__init__(TokenType.NEWLINE, '\\n', line, column)
-
 class IndentToken(BaseToken):
     def __init__(self, line, column):
         super().__init__(TokenType.BEGIN, '', line, column)
@@ -102,3 +101,7 @@ class OperatorBinaryToken(BaseToken):
     def __init__(self, value, line, column):
         super().__init__(TokenType.OPERATOR_BINARY, value, line, column)
 
+
+class StringToken(BaseToken):
+    def __init__(self, value, line, column):
+        super().__init__(TokenType.KEYWORD, value, line, column)
