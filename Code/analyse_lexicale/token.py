@@ -104,4 +104,4 @@ class OperatorBinaryToken(BaseToken):
 
 class StringToken(BaseToken):
     def __init__(self, value, line, column):
-        super().__init__(TokenType.KEYWORD, value, line, column)
+        super().__init__(TokenType.STRING, value, line, column)

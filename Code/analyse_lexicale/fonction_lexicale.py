@@ -32,7 +32,7 @@ class Lexeur:
         self.token = None
         self.token_nombre = False
         self.fin_fichier = False
-        self.is_string = False
+        self.string = False
         self.pile_indent = [0]
 
     def lire(self):
@@ -97,6 +97,8 @@ class Lexeur:
             return KeywordToken(self.token, self.ligne_position, self.position)
         elif self.token_nombre:
             return LiteralToken(self.token, self.ligne_position, self.position)
+        elif self.string:
+            return StringToken(self.token,self.ligne_position,self.position)
         else:
             return IdentifierToken(self.token, self.ligne_position, self.position)
 
@@ -105,17 +107,25 @@ class Lexeur:
             self.next_line()
             self.Identification(tokens)
         
-        elif (self.charactere=="\"" and not self.is_string):
-            self.token = None
-            self.token_nombre = False
+        
+        elif (self.charactere() or self.charactere_actuelle == '_') & (self.token is None) & (not self.string):
+                self.token = self.charactere_actuelle                
 
-        elif (self.charactere() or self.charactere_actuelle == '_') & (self.token is None):
+        elif (self.charactere_actuelle == '"') & (self.token is None) & (not self.string):
                 self.token = self.charactere_actuelle
-                
-        elif self.token:
-            if self.is_string:
+                self.string = True
+
+        elif self.token and (self.string):
+            if self.charactere_actuelle !='"':
                 self.token += self.charactere_actuelle
-            elif not self.fin_de_mot():
+            else:
+                self.token += self.charactere_actuelle
+                tokens.append(self.mot_cle())
+                self.token = None
+                self.string = False
+
+        elif self.token and not self.string:
+            if not self.fin_de_mot():
                 self.token += self.charactere_actuelle
             else:
                 tokens.append(self.mot_cle())
@@ -123,7 +133,7 @@ class Lexeur:
                 self.token_nombre = False
         
         
-        elif self.chiffre() & (not self.token):
+        elif self.chiffre() & (not self.token) & (not self.string):
             self.token = self.charactere_actuelle
             self.token_nombre = True
             if(self.charactere_actuelle == '0'):
@@ -161,7 +171,7 @@ class Lexeur:
                         self.pile_indent = self.pile_indent[1:]
                         head = self.pile_indent[0]
         
-        elif self.charactere_actuelle in '(){}[]':
+        elif self.charactere_actuelle in '(){}[]' and not self.string:
             tokens.append(PunctuationToken(self.charactere_actuelle, self.ligne_position, self.position))
         
         
