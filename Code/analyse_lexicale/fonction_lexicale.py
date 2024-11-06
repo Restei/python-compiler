@@ -109,7 +109,8 @@ class Lexeur:
         
         
         elif (self.charactere() or self.charactere_actuelle == '_') & (self.token is None) & (not self.string):
-                self.token = self.charactere_actuelle                
+                self.token = self.charactere_actuelle
+                
 
         elif (self.charactere_actuelle == '"') & (self.token is None) & (not self.string):
                 self.token = self.charactere_actuelle
