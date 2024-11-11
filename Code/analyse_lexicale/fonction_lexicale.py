@@ -120,19 +120,16 @@ class Lexeur:
                 if self.fin_fichier:
                     self.count-=1
                 self.retour()
-                print(f"\nself pile ={self.pile_indent}; count_indent = {self.count};ligne = {self.ligne_position}")
                 self.is_indent=False
                 if self.count==self.pile_indent[0]:
                     pass
                 elif self.count>self.pile_indent[0]:
-                    print("BEGIN")
                     self.pile_indent = [self.count] + self.pile_indent
                     tokens.append(IndentToken(self.ligne_position,self.position))
                     self.count = 0
                 else:
                     if self.count in self.pile_indent:
                         while self.count!=self.pile_indent[0]:
-                            print(f"END:{self.pile_indent} ; Count = {self.count}")
                             tokens.append(DedentToken(self.ligne_position,self.position))
                             self.pile_indent = self.pile_indent[1:]
                             self.pile_indent[0] = self.pile_indent[0]
@@ -166,7 +163,7 @@ class Lexeur:
                 tokens.append(self.mot_cle())
                 self.token = None
                 self.token_nombre = False
-                self.retour() #reconnaisait les ponctuation que quand il n'y avait pas de token
+                self.retour() 
         
         
         elif self.chiffre() & (not self.token) & (not self.string):
