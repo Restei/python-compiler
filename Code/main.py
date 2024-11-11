@@ -1,12 +1,17 @@
 from analyse_lexicale.fonction_lexicale import Lexeur,lire_fichier,affichage_fichier
 from analyse_lexicale.token import TokenType, BaseToken
 
-Lex1 = Lexeur(lire_fichier("mini_python/variable.py"))
+path = "mini_python/"
+fichier = "complique.py"
+
+file = path + fichier
+
+Lex1 = Lexeur(lire_fichier(file))
 
 #print(lire_fichier("mini_python/variable.py"))
 
 Tokens = Lex1.Tokenisation()
-affichage_fichier("mini_python/variable.py")
+#affichage_fichier(file)
 print("\n")
 
 for token in Tokens:

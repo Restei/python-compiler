@@ -8,11 +8,11 @@ class TokenType(Enum):
     OPERATOR_UNARY = 'OPERATOR_UNARY'
     OPERATOR_BINARY = 'OPERATOR_BINARY'
     PUNCTUATION = 'PUNCTUATION'
-    INDENT = 'INDENT'
-    DEDENT = 'DEDENT'
-    NEWLINE = 'NEWLINE'
+    BEGIN = 'INDENT'
+    END = 'DEDENT'
     EOF = 'EOF'
-
+    STRING = 'STRING'
+    UNKNOWN = 'UNKNOWN'
     
     @classmethod
     def is_binary_operator(cls, token):
@@ -28,7 +28,10 @@ class TokenType(Enum):
             '//': 'FLOOR_DIV',
             '<<': 'SHIFT_LEFT',
             '>>': 'SHIFT_RIGHT',
-            '**': 'POWER'
+            '**': 'POWER',
+            '-=': 'SUBTRACT',
+            '+=': 'ADD',
+            '*=': 'MULTIPLY'
         }
         return binaires.get(token, None)
 
@@ -39,7 +42,13 @@ class TokenType(Enum):
             '+': 'PLUS',
             '-': 'MINUS',
             '!': 'NOT',
-            '~': 'BITWISE_NOT'
+            '~': 'BITWISE_NOT',
+            '=': 'EQUAL',
+            '*': 'PRODUCT',
+            '/': 'DIV',
+            '%': 'MOD',
+            '>': 'GREATER',
+            '<': 'LESS'
         }
         return unaires.get(token, None)
 
@@ -76,17 +85,13 @@ class PunctuationToken(BaseToken):
     def __init__(self, value, line, column):
         super().__init__(TokenType.PUNCTUATION, value, line, column)
 
-class NewlineToken(BaseToken):
-    def __init__(self, line, column):
-        super().__init__(TokenType.NEWLINE, '\\n', line, column)
-
 class IndentToken(BaseToken):
     def __init__(self, line, column):
-        super().__init__(TokenType.INDENT, 'INDENT', line, column)
+        super().__init__(TokenType.BEGIN, '', line, column)
 
 class DedentToken(BaseToken):
     def __init__(self, line, column):
-        super().__init__(TokenType.DEDENT, 'DEDENT', line, column)
+        super().__init__(TokenType.END, '', line, column)
 
 class OperatorUnaryToken(BaseToken):
     def __init__(self, value, line, column):
@@ -96,3 +101,19 @@ class OperatorBinaryToken(BaseToken):
     def __init__(self, value, line, column):
         super().__init__(TokenType.OPERATOR_BINARY, value, line, column)
 
+
+class UnknownToken(BaseToken):
+    def __init__(self, value, line, column):
+        super().__init__(TokenType.UNKNOWN, value, line, column)
+
+class StringToken(BaseToken):
+    def __init__(self, value, line, column):
+        super().__init__(TokenType.STRING, value, line, column)
+
+class ZeroException(Exception):
+    def __init__(self,ligne):
+        super().__init__(f"Line {ligne} : Number cannot begin with 0")
+
+class AlphainNumberException(Exception):
+    def __init__(self,ligne):
+        super().__init__(f"Line {ligne} : There cannot be letters in numbers")
