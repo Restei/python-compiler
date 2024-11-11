@@ -33,6 +33,8 @@ class Lexeur:
         self.token_nombre = False
         self.fin_fichier = False
         self.string = False
+        self.is_indent = False
+        self.count = 0
         self.pile_indent = [0]
 
     def lire(self):
@@ -44,6 +46,14 @@ class Lexeur:
             self.charactere_actuelle = self.contenu[self.position]
             if self.charactere_actuelle == '\n':
                 self.ligne_position += 1
+
+    def retour(self):
+        if self.curseur_position >= 1:
+            if self.charactere_actuelle == '\n':
+                self.ligne_position -= 1
+            self.position -= 1
+            self.curseur_position -= 1
+            self.charactere_actuelle = self.contenu[self.position]
 
     def peek(self):
         if self.curseur_position + 1 < len(self.contenu):
@@ -103,7 +113,32 @@ class Lexeur:
             return IdentifierToken(self.token, self.ligne_position, self.position)
 
     def Identification(self,tokens):
-        if self.charactere_actuelle == '#':
+        if self.is_indent==True and self.charactere_actuelle!='\n':
+            if self.charactere_actuelle==' ' and not self.fin_fichier:
+                self.count+=1
+            else:
+                if self.fin_fichier:
+                    self.count-=1
+                self.retour()
+                print(f"\nself pile ={self.pile_indent}; count_indent = {self.count};ligne = {self.ligne_position}")
+                self.is_indent=False
+                if self.count==self.pile_indent[0]:
+                    pass
+                elif self.count>self.pile_indent[0]:
+                    print("BEGIN")
+                    self.pile_indent = [self.count] + self.pile_indent
+                    tokens.append(IndentToken(self.ligne_position,self.position))
+                    self.count = 0
+                else:
+                    if self.count in self.pile_indent:
+                        while self.count!=self.pile_indent[0]:
+                            print(f"END:{self.pile_indent} ; Count = {self.count}")
+                            tokens.append(DedentToken(self.ligne_position,self.position))
+                            self.pile_indent = self.pile_indent[1:]
+                            self.pile_indent[0] = self.pile_indent[0]
+
+
+        elif self.charactere_actuelle == '#':
             self.next_line()
         
         
@@ -131,6 +166,7 @@ class Lexeur:
                 tokens.append(self.mot_cle())
                 self.token = None
                 self.token_nombre = False
+                self.retour() #reconnaisait les ponctuation que quand il n'y avait pas de token
         
         
         elif self.chiffre() & (not self.token) & (not self.string):
@@ -146,32 +182,16 @@ class Lexeur:
         
         
         elif self.charactere_actuelle == '\n':
+            while self.peek()=='\n':
+                self.lire()
             if self.token:
                 tokens.append(self.mot_cle())
                 self.token = None
                 self.token_nombre = False
+            self.is_indent = True
+            self.count = 0
 
-            count_indent = 0
-            head = self.pile_indent[0]
-            while self.peek() == ' ':
-                count_indent+=1
-                self.lire()
-                if self.peek()=='#':
-                    count_indent = head
-            if count_indent==head:
-                pass
-            elif count_indent>head:
 
-#                print(count_indent)
-                self.pile_indent = [count_indent] + self.pile_indent
-                tokens.append(IndentToken(self.ligne_position,self.position))
-            else:
-                if count_indent in self.pile_indent:
-                    while count_indent!=head:
-#                        print(self.pile_indent)
-                        tokens.append(DedentToken(self.ligne_position,self.position))
-                        self.pile_indent = self.pile_indent[1:]
-                        head = self.pile_indent[0]
         
         elif self.charactere_actuelle in '(){}[]' and not self.string:
             tokens.append(PunctuationToken(self.charactere_actuelle, self.ligne_position, self.position))
@@ -191,6 +211,10 @@ class Lexeur:
     def Tokenisation(self):
         tokens = []
 
+        while self.position<1285:
+            self.lire()
+            self.Identification(tokens)
+
         while not self.fin_fichier:
             self.lire()
             self.Identification(tokens)
@@ -198,6 +222,3 @@ class Lexeur:
         # Ajouter le token EOF à la fin
         tokens.append(BaseToken(TokenType.EOF, '', self.ligne_position, self.position))
         return tokens
-
-
-  
