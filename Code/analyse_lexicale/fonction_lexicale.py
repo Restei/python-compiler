@@ -105,7 +105,6 @@ class Lexeur:
     def Identification(self,tokens):
         if self.charactere_actuelle == '#':
             self.next_line()
-            self.Identification(tokens)
         
         
         elif (self.charactere() or self.charactere_actuelle == '_') & (self.token is None) & (not self.string):
@@ -158,16 +157,18 @@ class Lexeur:
                 count_indent+=1
                 self.lire()
                 if self.peek()=='#':
-                    self.next_line()
-                    count_indent=0
+                    count_indent = head
             if count_indent==head:
                 pass
             elif count_indent>head:
+
+#                print(count_indent)
                 self.pile_indent = [count_indent] + self.pile_indent
                 tokens.append(IndentToken(self.ligne_position,self.position))
             else:
                 if count_indent in self.pile_indent:
                     while count_indent!=head:
+#                        print(self.pile_indent)
                         tokens.append(DedentToken(self.ligne_position,self.position))
                         self.pile_indent = self.pile_indent[1:]
                         head = self.pile_indent[0]
