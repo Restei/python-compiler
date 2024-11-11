@@ -1,5 +1,5 @@
 import re
-from analyse_lexicale.token import TokenType, BaseToken, KeywordToken, OperatorToken, LiteralToken, IdentifierToken, PunctuationToken, OperatorUnaryToken, OperatorBinaryToken,IndentToken,DedentToken,StringToken
+from analyse_lexicale.token import *
 
 
 def lire_fichier(source):
@@ -36,6 +36,7 @@ class Lexeur:
         self.is_indent = False
         self.count = 0
         self.pile_indent = [0]
+        self.errors = []
 
     def lire(self):
         if self.curseur_position >= self.taille:
@@ -100,12 +101,20 @@ class Lexeur:
     def mot_cle(self):
         keywords = {
             'if': 'IF', 'elif': 'ELIF', 'else': 'ELSE', 'for': 'FOR', 'while': 'WHILE',
-            'def': 'DEF', 'return': 'RETURN', 'import': 'IMPORT', 'from': 'FROM'
+            'def': 'DEF', 'return': 'RETURN', 'import': 'IMPORT', 'from': 'FROM', 
+            'and':'AND', 'True':'TRUE','False':'FALSE','in':'IN','not':'NOT','or':'OR',
+            'print':'PRINT','None':'NONE'
         }
 
         if self.token in keywords:
             return KeywordToken(self.token, self.ligne_position, self.position)
         elif self.token_nombre:
+            for caractere in self.token:
+                if caractere.isalpha():
+                    self.errors.append(AlphainNumberException(self.ligne_position))
+                    return UnknownToken(self.token,self.ligne_position,self.position)
+            if self.token[0]=='0':
+                return UnknownToken(self.token,self.ligne_position,self.position)
             return LiteralToken(self.token, self.ligne_position, self.position)
         elif self.string:
             return StringToken(self.token,self.ligne_position,self.position)
@@ -170,9 +179,16 @@ class Lexeur:
             self.token = self.charactere_actuelle
             self.token_nombre = True
             if(self.charactere_actuelle == '0'):
-                tokens.append(LiteralToken(self.token, self.ligne_position, self.position))
-                self.token = None
-                self.token_nombre = False
+                self.lire()
+                if self.charactere_actuelle in [',', '\n', ' ', '+', '-', ':', '(', ')', '[', ']', '/', '*', '=', '.']:
+                    self.retour()
+                    tokens.append(LiteralToken(self.token, self.ligne_position, self.position))
+                    self.token = None
+                    self.token_nombre = False
+                else:
+                    self.retour()
+                    self.errors.append(ZeroException(self.ligne_position))
+
             else:
                 self.token = self.charactere_actuelle
                 self.token_nombre = True   
@@ -207,15 +223,11 @@ class Lexeur:
                 
     def Tokenisation(self):
         tokens = []
-
-        while self.position<1285:
-            self.lire()
-            self.Identification(tokens)
-
         while not self.fin_fichier:
             self.lire()
             self.Identification(tokens)
         
         # Ajouter le token EOF à la fin
         tokens.append(BaseToken(TokenType.EOF, '', self.ligne_position, self.position))
-        return tokens
+
+        return tokens,self.errors

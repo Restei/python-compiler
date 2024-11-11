@@ -12,7 +12,7 @@ class TokenType(Enum):
     END = 'DEDENT'
     EOF = 'EOF'
     STRING = 'STRING'
-
+    UNKNOWN = 'UNKNOWN'
     
     @classmethod
     def is_binary_operator(cls, token):
@@ -102,6 +102,18 @@ class OperatorBinaryToken(BaseToken):
         super().__init__(TokenType.OPERATOR_BINARY, value, line, column)
 
 
+class UnknownToken(BaseToken):
+    def __init__(self, value, line, column):
+        super().__init__(TokenType.UNKNOWN, value, line, column)
+
 class StringToken(BaseToken):
     def __init__(self, value, line, column):
         super().__init__(TokenType.STRING, value, line, column)
+
+class ZeroException(Exception):
+    def __init__(self,ligne):
+        super().__init__(f"Line {ligne} : Number cannot begin with 0")
+
+class AlphainNumberException(Exception):
+    def __init__(self,ligne):
+        super().__init__(f"Line {ligne} : There cannot be letters in numbers")
