@@ -146,6 +146,7 @@ class Lexeur:
 
         elif self.charactere_actuelle == '#':
             self.next_line()
+            self.retour()
         
         
         elif (self.charactere() or self.charactere_actuelle == '_') & (self.token is None) & (not self.string):
@@ -195,6 +196,7 @@ class Lexeur:
         
         
         elif self.charactere_actuelle == '\n':
+            tokens.append(NewlineToken(self.ligne_position,self.position))
             while self.peek()=='\n':
                 self.lire()
             if self.token:

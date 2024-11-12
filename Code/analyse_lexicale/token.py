@@ -13,6 +13,7 @@ class TokenType(Enum):
     EOF = 'EOF'
     STRING = 'STRING'
     UNKNOWN = 'UNKNOWN'
+    NEWLINE = 'NEWLINE'
     
     @classmethod
     def is_binary_operator(cls, token):
@@ -101,6 +102,9 @@ class OperatorBinaryToken(BaseToken):
     def __init__(self, value, line, column):
         super().__init__(TokenType.OPERATOR_BINARY, value, line, column)
 
+class NewlineToken(BaseToken):
+    def __init__(self, line, column):
+        super().__init__(TokenType.NEWLINE, '' , line, column)
 
 class UnknownToken(BaseToken):
     def __init__(self, value, line, column):
