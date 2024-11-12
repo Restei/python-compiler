@@ -17,3 +17,6 @@ print("\n")
 for token in Tokens:
     print(repr(token))
     
+for error in errors:
+    print(error)
+    
