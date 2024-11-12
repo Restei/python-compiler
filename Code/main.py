@@ -10,7 +10,7 @@ Lex1 = Lexeur(lire_fichier(file))
 
 #print(lire_fichier("mini_python/variable.py"))
 
-Tokens = Lex1.Tokenisation()
+Tokens,errors = Lex1.Tokenisation()
 #affichage_fichier(file)
 print("\n")
 
