@@ -121,3 +121,7 @@ class ZeroException(Exception):
 class AlphainNumberException(Exception):
     def __init__(self,ligne):
         super().__init__(f"Line {ligne} : There cannot be letters in numbers")
+        
+class UnknowCaractersInVariable(Exception):
+    def __init__(self,ligne,variable):
+        super().__init__(f"Line {ligne} : There cannot be unknow caracters in identifiers in {variable}")

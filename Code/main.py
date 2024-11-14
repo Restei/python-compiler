@@ -2,7 +2,7 @@ from analyse_lexicale.fonction_lexicale import Lexeur,lire_fichier,affichage_fic
 from analyse_lexicale.token import TokenType, BaseToken
 
 path = "mini_python/"
-fichier = "complique.py"
+fichier = "erreurs.py"
 
 file = path + fichier
 
@@ -16,4 +16,7 @@ print("\n")
 
 for token in Tokens:
     print(repr(token))
+    
+for error in errors:
+    print(repr(error))
     
