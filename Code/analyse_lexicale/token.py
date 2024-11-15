@@ -115,12 +115,12 @@ class StringToken(BaseToken):
         super().__init__(TokenType.STRING, value, line, column)
 
 class ZeroException(Exception):
-    def __init__(self,ligne):
-        super().__init__(f"Line {ligne} : Number cannot begin with 0")
+    def __init__(self,ligne,number):
+        super().__init__(f"Line {ligne} : Number \"{number}\" cannot begin with 0")
 
 class AlphainNumberException(Exception):
-    def __init__(self,ligne):
-        super().__init__(f"Line {ligne} : There cannot be letters in numbers")
+    def __init__(self,ligne,number):
+        super().__init__(f"Line {ligne} : There cannot be letters in numbers \"{number}\"")
         
 class UnknowCaractersInVariable(Exception):
     def __init__(self,ligne,variable):
