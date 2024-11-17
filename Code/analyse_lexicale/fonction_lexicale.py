@@ -34,6 +34,8 @@ class Lexeur:
         self.fin_fichier = False
         self.string = False
         self.is_indent = False
+        self.variable_error = False
+        self.number_error = False
         self.count = 0
         self.pile_indent = [0]
         self.errors = []
@@ -70,6 +72,12 @@ class Lexeur:
 
     def charactere(self):
         return self.charactere_actuelle.isalpha() or self.charactere_actuelle == '_'
+    
+    def caractere_inconnu(self):
+        caracteres_autorises = "!\"#%&'()*+,-./:;<=>?[\\]^_`{|}"
+        if self.charactere_actuelle.isalnum() or self.charactere_actuelle in caracteres_autorises:
+            return False 
+        return True 
 
     def fin_de_mot(self):
         fin = [',', '\n', ' ', '+', '-', ':', '(', ')', '[', ']', '/', '*', '=', '.']
@@ -105,19 +113,22 @@ class Lexeur:
             'and':'AND', 'True':'TRUE','False':'FALSE','in':'IN','not':'NOT','or':'OR',
             'print':'PRINT','None':'NONE'
         }
-
+        if self.variable_error or self.number_error:
+            return UnknownToken(self.token,self.ligne_position,self.position)
+        
         if self.token in keywords:
             return KeywordToken(self.token, self.ligne_position, self.position)
+        
         elif self.token_nombre:
-            for caractere in self.token:
-                if caractere.isalpha():
-                    self.errors.append(AlphainNumberException(self.ligne_position))
-                    return UnknownToken(self.token,self.ligne_position,self.position)
             if self.token[0]=='0':
-                return UnknownToken(self.token,self.ligne_position,self.position)
+                if len(self.token)>1:
+                    self.errors.append(ZeroException(self.ligne_position,self.token))
+                    return UnknownToken(self.token,self.ligne_position,self.position)
             return LiteralToken(self.token, self.ligne_position, self.position)
+        
         elif self.string:
             return StringToken(self.token,self.ligne_position,self.position)
+        
         else:
             return IdentifierToken(self.token, self.ligne_position, self.position)
 
@@ -168,32 +179,28 @@ class Lexeur:
 
         elif self.token and not self.string:
             if not self.fin_de_mot():
+                if (not self.charactere()) and (not self.chiffre()) :
+                    self.variable_error = True
+                if self.token_nombre and not self.chiffre():
+                    self.number_error = True
                 self.token += self.charactere_actuelle
             else:
+                if self.variable_error:
+                    self.errors.append(UnknowCaractersInVariable((self.ligne_position),(self.token)))
+                if self.number_error:
+                    self.errors.append(AlphainNumberException(self.ligne_position,self.token))
                 tokens.append(self.mot_cle())
                 self.token = None
                 self.token_nombre = False
-                self.retour() 
-        
-        
+                self.variable_error = False
+                self.number_error = False
+                self.Identification(tokens)
+                 
+
         elif self.chiffre() & (not self.token) & (not self.string):
             self.token = self.charactere_actuelle
             self.token_nombre = True
-            if(self.charactere_actuelle == '0'):
-                self.lire()
-                if self.charactere_actuelle in [',', '\n', ' ', '+', '-', ':', '(', ')', '[', ']', '/', '*', '=', '.']:
-                    self.retour()
-                    tokens.append(LiteralToken(self.token, self.ligne_position, self.position))
-                    self.token = None
-                    self.token_nombre = False
-                else:
-                    self.retour()
-                    self.errors.append(ZeroException(self.ligne_position))
-
-            else:
-                self.token = self.charactere_actuelle
-                self.token_nombre = True   
-        
+  
         
         elif self.charactere_actuelle == '\n':
             tokens.append(NewlineToken(self.ligne_position,self.position))
@@ -208,17 +215,11 @@ class Lexeur:
 
 
         
-        elif self.charactere_actuelle in '(){}[]' and not self.string:
+        elif self.charactere_actuelle in '(){}[]:,' and not self.string:
             tokens.append(PunctuationToken(self.charactere_actuelle, self.ligne_position, self.position))
         
         
         else:
-            if self.token:
-                tokens.append(self.mot_cle())
-                self.token = None
-                self.token_nombre = False
-        
-            
             operator_token = self.binary()  
             if operator_token:
                 tokens.append(operator_token)
