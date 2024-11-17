@@ -153,6 +153,8 @@ class Lexeur:
                             tokens.append(DedentToken(self.ligne_position,self.position))
                             self.pile_indent = self.pile_indent[1:]
                             self.pile_indent[0] = self.pile_indent[0]
+                    else:
+                        self.errors.append(IndentException(self.ligne_position))
 
 
         elif self.charactere_actuelle == '#':

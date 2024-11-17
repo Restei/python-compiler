@@ -125,3 +125,8 @@ class AlphainNumberException(Exception):
 class UnknowCaractersInVariable(Exception):
     def __init__(self,ligne,variable):
         super().__init__(f"Line {ligne} : There cannot be unknow caracters in identifiers in {variable}")
+
+
+class IndentException(Exception):
+    def __init__(self,ligne):
+        super().__init__(f"Line {ligne} : indentation error")
