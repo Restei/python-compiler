@@ -47,8 +47,6 @@ class Lexeur:
             self.position += 1
             self.curseur_position += 1
             self.charactere_actuelle = self.contenu[self.position]
-            if self.charactere_actuelle == '\n':
-                self.ligne_position += 1
 
     def retour(self):
         if self.curseur_position >= 1:
@@ -205,6 +203,7 @@ class Lexeur:
   
         
         elif self.charactere_actuelle == '\n':
+            self.ligne_position+=1
             tokens.append(NewlineToken(self.ligne_position,self.position))
             while self.peek()=='\n':
                 self.lire()
