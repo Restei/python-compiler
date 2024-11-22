@@ -1,5 +1,6 @@
 # Début du programme
 def calcul_complexe(a, b):
+    
     # Opérations arithmétiques de base
     somme = a + b  # Addition
     produit = a * b  # Multiplication
@@ -38,9 +39,7 @@ def main():
     # Appel de la fonction avec des expressions complexes
     result = calcul_complexe(x, y)
 
-    # Affichage des résultats
-    for i, res in enumerate(result):
-        print(f"Résultat {i + 1}: {res}")
+  
 
 # Appel de la fonction principale
 if __name__ == "__main__":
