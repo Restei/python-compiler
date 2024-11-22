@@ -3,7 +3,7 @@ from analyse_lexicale.token import TokenType, BaseToken
 from analyse_syntaxique.table_des_symboles import *
 
 path = "mini_python/"
-fichier = "erreurs.py"
+fichier = "complique.py"
 
 file = path + fichier
 
@@ -21,4 +21,4 @@ print("\n")
 #for error in errors:
 #    print(repr(error))
 
-print(creation_TDS(Tokens))
+representation_TDS(creation_TDS(Tokens))
