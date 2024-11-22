@@ -39,18 +39,25 @@ class Node:
     def number(self):
         return self.id
 
+    def getname(self):
+        return self.name
+
     def ajouter_fils(self,node):
         self.succ.append(Node(node)) 
 
+
+
     def dessine(self):
         from collections import deque
+        
         g= Graph()
         size = unique_id
         g.add_vertices(size)
-        
+        labels = []
         file = deque([self])
         while (len(file)>0):
             node = file.popleft()
+            labels.append(node.getname())
             for elem in node:
                 g.add_edge(node.number(),elem.number())
                 file.append(elem)
@@ -73,27 +80,44 @@ class Node:
             Xe+=[position[edge[0]][0],position[edge[1]][0], None]
             Ye+=[2*M-position[edge[0]][1],2*M-position[edge[1]][1], None]
 
-        labels = [0,1,2]
         fig = go.Figure()
-        fig.add_trace(go.Scatter(x=Xe,
-                   y=Ye,
-                   mode='lines',
-                   line=dict(color='rgb(210,210,210)', width=1),
-                   hoverinfo='none',
-                   ))
+
+        axis = dict(showline=False, # hide axis line, grid, ticklabels and  title
+            zeroline=False,
+            showgrid=False,
+            showticklabels=False,
+            )
+
         fig.add_trace(go.Scatter(x=Xn,
                   y=Yn,
                   mode='markers',
                   name='noeuds',
                   marker=dict(symbol='circle-dot',
-                                size=18,
+                                size=25,
                                 color='#6175c1',    #'#DB4551',
                                 line=dict(color='rgb(50,50,50)', width=1)
                                 ),
                   text=labels,
                   hoverinfo='text',
-                  opacity=0.8
+                  opacity=1.0
                   ))
+        
+        fig.add_trace(go.Scatter(x=Xe,
+                   y=Ye,
+                   mode='lines',
+                   line=dict(color='rgb(210,210,210)', width=2),
+                   hoverinfo='none',
+                   ))
+        fig.update_layout(
+              font_size=12,
+              showlegend=False,
+              xaxis=axis,
+              yaxis=axis,
+              hovermode='closest',
+              )
+        
+
+        
         fig.show()
 
         
