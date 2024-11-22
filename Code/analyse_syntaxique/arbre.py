@@ -1,11 +1,18 @@
 import plotly.graph_objects as go
 from igraph import *
 import igraph as ig
+
+
+unique_id = 0
+
 class Node:
     def __init__(self,name):
+        global unique_id
+        self.id = unique_id 
         self.name = name
         self.succ = []
-        
+        unique_id+=1
+
     def __repr__(self):
         return self.name
     
@@ -29,52 +36,27 @@ class Node:
                 return False
             return True
 
-    def taille(self):
-        size = 1
-        for elem in self.succ:
-            if elem.succ != []:
-                size += elem.taille()
-            else:
-                size+= 1
-        return size
+    def number(self):
+        return self.id
 
     def ajouter_fils(self,node):
         self.succ.append(Node(node)) 
 
     def dessine(self):
-        size = self.taille()
+        from collections import deque
         g= Graph()
+        size = unique_id
         g.add_vertices(size)
         
-
-        def parcours_largeur(node):
-            from collections import deque
-            
-            num_succ = len(node)
-            origin = 0
-            current = 1
-            file = deque([node])
-            X = [node]
-            marque = [node]
-
-            while(len(file)>0):
-                current_node= file.popleft()
-                for i in range (len(X)):
-                    if X[i]==current_node:
-                        origin = i
-
-                for elem in current_node:
-                    if elem not in marque :
-                        file.append(elem)
-                        marque.append(elem)
-                        g.add_edge(origin,current)
-                        current+=1            
-
-        parcours_largeur(self)
+        file = deque([self])
+        while (len(file)>0):
+            node = file.popleft()
+            for elem in node:
+                g.add_edge(node.number(),elem.number())
+                file.append(elem)
 
         layout = g.layout("rt",root = [0])
-        
-        
+
         position = {k: layout[k] for k in range(size)}
         Y = [layout[k][1] for k in range(size)]
         M = max(Y)
@@ -97,12 +79,12 @@ class Node:
                    y=Ye,
                    mode='lines',
                    line=dict(color='rgb(210,210,210)', width=1),
-                   hoverinfo='none'
+                   hoverinfo='none',
                    ))
         fig.add_trace(go.Scatter(x=Xn,
                   y=Yn,
                   mode='markers',
-                  name='bla',
+                  name='noeuds',
                   marker=dict(symbol='circle-dot',
                                 size=18,
                                 color='#6175c1',    #'#DB4551',
@@ -126,5 +108,4 @@ R.ajouter_fils("RUS")
 R[0].ajouter_fils("2")
 
 R[0].ajouter_fils("R5")
-
 R.dessine()
