@@ -120,4 +120,65 @@ class UnexpectedEOFError(LL1SyntaxException):
     def __init__(self, line, column):
         super().__init__("Fin de fichier inattendue", line, column)
 
+class ForStatementError(LL1SyntaxException):
+    """Erreur dans une instruction 'for'."""
+    def __init__(self, line, column):
+        super().__init__("Erreur dans une instruction 'for'", line, column)
+
+
+class ElseStatementError(LL1SyntaxException):
+    """Erreur dans une clause 'else'."""
+    def __init__(self, line, column):
+        super().__init__("Erreur dans une clause 'else'", line, column)
+
+
+class ParenthesesError(LL1SyntaxException):
+    """Erreur dans les parenthèses."""
+    def __init__(self, line, column):
+        super().__init__("Erreur dans les parenthèses", line, column)
+
+
+class BracketsError(LL1SyntaxException):
+    """Erreur dans les crochets."""
+    def __init__(self, line, column):
+        super().__init__("Erreur dans les crochets", line, column)
+
+
+class BinaryOperationError(LL1SyntaxException):
+    """Erreur dans l'utilisation d'une opération binaire (and, or, etc.)."""
+    def __init__(self, operator, line, column):
+        super().__init__(f"Erreur dans l'opération binaire '{operator}'", line, column)
+
+
+class UnaryMinusError(LL1SyntaxException):
+    """Erreur dans l'utilisation d'un signe négatif unitaire."""
+    def __init__(self, line, column):
+        super().__init__("Erreur dans l'utilisation d'un signe négatif", line, column)
+
+
+class IdentifierAuxError(LL1SyntaxException):
+    """Erreur dans la composition des identifiants."""
+    def __init__(self, line, column):
+        super().__init__("Erreur dans la composition de l'identifiant", line, column)
+        
+
+class StringAuxError(LL1SyntaxException):
+    """Erreur dans une chaîne de caractères."""
+    def __init__(self, line, column):
+        super().__init__("Erreur dans la structure d'une chaîne de caractères", line, column)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
