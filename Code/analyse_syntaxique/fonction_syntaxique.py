@@ -292,3 +292,125 @@ class LL1Parser:
         if self.current_token.type == TokenType.BINOP:
             self.consommer(TokenType.BINOP)  # Consomme un opérateur binaire
             self.exprinit()  # Analyse la partie droite de l'expression
+    def binop_and(self):
+        """
+        Règle : binopAnd → and <binopAndEtoile>
+        """
+        while self.current_token.value == "and":
+            self.consommer(TokenType.BINOP)
+            self.binop_and_etoile()
+
+    def binop_and_etoile(self):
+        """
+        Règle : binopAndEtoile → <expr> <binopAndEtoile> | ε
+        """
+        if self.current_token.type in [TokenType.NUMBER, TokenType.IDENTIFIER]:
+            self.expr()
+            self.binop_and_etoile()
+
+    def binop_or(self):
+        """
+        Règle : binopOr → or <binopOrEtoile>
+        """
+        while self.current_token.value == "or":
+            self.consommer(TokenType.BINOP)
+            self.binop_or_etoile()
+
+    def binop_or_etoile(self):
+        """
+        Règle : binopOrEtoile → <expr> <binopOrEtoile> | ε
+        """
+        if self.current_token.type in [TokenType.NUMBER, TokenType.IDENTIFIER]:
+            self.expr()
+            self.binop_or_etoile()
+
+    def comp(self):
+        """
+        Règle : comp → == | != | < | > | <= | >=
+        """
+        if self.current_token.type == TokenType.OPERATOR and self.current_token.value in ['==', '!=', '<', '>', '<=', '>=']:
+            self.consommer(TokenType.OPERATOR)
+        else:
+            raise ComparisonError(self.current_token.value, self.current_token.line, self.current_token.column)
+
+    def constant(self):
+        """
+        Règle : const → NUMBER | STRING | True | False | None
+        """
+        if self.current_token.type in [TokenType.NUMBER, TokenType.STRING]:
+            self.consommer(self.current_token.type)
+        elif self.current_token.type == TokenType.KEYWORD and self.current_token.value in ["True", "False", "None"]:
+            self.consommer(TokenType.KEYWORD)
+        else:
+            raise ConstantError(self.current_token.line, self.current_token.column)
+
+    def parentheses(self):
+        """
+        Règle : parentheses → ( <expr> ) | [ <expr> ]
+        """
+        if self.current_token.type == TokenType.PUNCTUATION and self.current_token.value == '(':
+            self.consommer(TokenType.PUNCTUATION)
+            self.expr()
+            self.consommer(TokenType.PUNCTUATION)
+        elif self.current_token.type == TokenType.PUNCTUATION and self.current_token.value == '[':
+            self.consommer(TokenType.PUNCTUATION)
+            self.expr()
+            self.consommer(TokenType.PUNCTUATION)
+        else:
+            raise ParenthesesError(self.current_token.line, self.current_token.column)
+        
+    def ident(self):
+        """
+        Règle : ident → <alpha> <identaux>
+        Analyse un identifiant commençant par une lettre.
+        """
+        try:
+            if self.current_token.type == TokenType.ALPHA:
+                self.consommer(TokenType.ALPHA)  # Consomme un caractère alphabétique
+                self.identaux()  # Analyse les suffixes de l'identifiant
+            else:
+                raise IdentifierError(self.current_token.line, self.current_token.column)
+        except UnexpectedTokenError as e:
+            raise IdentifierError(self.current_token.line, self.current_token.column) from e
+
+    def identaux(self):
+        """
+        Règle : identaux → <alpha> <identaux> | <digit> <identaux> | ε
+        Analyse les suffixes d'un identifiant.
+        """
+        while self.current_token.type in [TokenType.ALPHA, TokenType.DIGIT]:
+            try:
+                if self.current_token.type == TokenType.ALPHA:
+                    self.consommer(TokenType.ALPHA)
+                elif self.current_token.type == TokenType.DIGIT:
+                    self.consommer(TokenType.DIGIT)
+            except UnexpectedTokenError as e:
+                raise IdentifierAuxError(self.current_token.line, self.current_token.column) from e
+    def string(self):
+        """
+        Règle : string → " <stringaux> "
+        Analyse une chaîne de caractères entourée de guillemets.
+        """
+        try:
+            if self.current_token.type == TokenType.PUNCTUATION and self.current_token.value == '"':
+                self.consommer(TokenType.PUNCTUATION)  # Consomme le guillemet ouvrant
+                self.stringaux()  # Analyse le contenu de la chaîne
+                self.consommer(TokenType.PUNCTUATION)  # Consomme le guillemet fermant
+            else:
+                raise StringError(self.current_token.line, self.current_token.column)
+        except UnexpectedTokenError as e:
+            raise StringError(self.current_token.line, self.current_token.column) from e
+
+    def stringaux(self):
+        """
+        Règle : stringaux → <alpha> <stringaux> | <digit> <stringaux> | ε
+        Analyse le contenu d'une chaîne de caractères.
+        """
+        while self.current_token.type in [TokenType.ALPHA, TokenType.DIGIT]:
+            try:
+                if self.current_token.type == TokenType.ALPHA:
+                    self.consommer(TokenType.ALPHA)
+                elif self.current_token.type == TokenType.DIGIT:
+                    self.consommer(TokenType.DIGIT)
+            except UnexpectedTokenError as e:
+                raise StringAuxError(self.current_token.line, self.current_token.column) from e
