@@ -3,7 +3,7 @@ from analyse_lexicale.token import TokenType, BaseToken
 from analyse_syntaxique.table_des_symboles import *
 
 path = "mini_python/"
-fichier = "complique.py"
+fichier = "erreurs.py"
 
 file = path + fichier
 
@@ -15,10 +15,10 @@ Tokens,errors = Lex1.Tokenisation()
 #affichage_fichier(file)
 print("\n")
 
-#for token in Tokens:
-#    print(repr(token))
-#    
-#for error in errors:
-#    print(repr(error))
+for token in Tokens:
+    print(repr(token))
+    
+for error in errors:
+    print(repr(error))
 
-representation_TDS(creation_TDS(Tokens))
+#representation_TDS(creation_TDS(Tokens))
