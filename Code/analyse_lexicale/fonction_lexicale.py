@@ -25,7 +25,6 @@ class Lexeur:
     def __init__(self, contenu):
         self.contenu = contenu + " "
         self.taille = len(self.contenu)
-        self.column = -1
         self.position = -1
         self.ligne_position = 1
         self.curseur_position = 0
@@ -46,12 +45,10 @@ class Lexeur:
             self.fin_fichier = True
         else:
             self.position += 1
-            self.column += 1
             self.curseur_position += 1
             self.charactere_actuelle = self.contenu[self.position]
             if self.charactere_actuelle == '\n':
                 self.ligne_position += 1
-                self.column = 0
 
     def retour(self):
         if self.curseur_position >= 1:
@@ -89,7 +86,7 @@ class Lexeur:
         operator_type = TokenType.is_unary_operator(self.charactere_actuelle)
         if operator_type:
             
-            return OperatorUnaryToken(self.charactere_actuelle, self.ligne_position, self.column)
+            return OperatorUnaryToken(self.charactere_actuelle, self.ligne_position, self.position)
         return None  
 
     def binary(self):
@@ -102,7 +99,7 @@ class Lexeur:
             if operator_type:
                 
                 self.lire()  
-                return OperatorBinaryToken(binary_token, self.ligne_position, self.column)
+                return OperatorBinaryToken(binary_token, self.ligne_position, self.position)
             else:
                 return self.unary_operator()
         else:
@@ -117,23 +114,23 @@ class Lexeur:
             'print':'PRINT','None':'NONE'
         }
         if self.variable_error or self.number_error:
-            return UnknownToken(self.token,self.ligne_position,self.column)
+            return UnknownToken(self.token,self.ligne_position,self.position)
         
         if self.token in keywords:
-            return KeywordToken(self.token, self.ligne_position, self.column)
+            return KeywordToken(self.token, self.ligne_position, self.position)
         
         elif self.token_nombre:
             if self.token[0]=='0':
                 if len(self.token)>1:
                     self.errors.append(ZeroException(self.ligne_position,self.token))
-                    return UnknownToken(self.token,self.ligne_position,self.column)
-            return LiteralToken(self.token, self.ligne_position, self.column)
+                    return UnknownToken(self.token,self.ligne_position,self.position)
+            return LiteralToken(self.token, self.ligne_position, self.position)
         
         elif self.string:
-            return StringToken(self.token,self.ligne_position,self.column)
+            return StringToken(self.token,self.ligne_position,self.position)
         
         else:
-            return IdentifierToken(self.token, self.ligne_position, self.column)
+            return IdentifierToken(self.token, self.ligne_position, self.position)
 
     def Identification(self,tokens):
         if self.is_indent==True and self.charactere_actuelle!='\n':
@@ -148,7 +145,7 @@ class Lexeur:
                     pass
                 elif self.count>self.pile_indent[0]:
                     self.pile_indent = [self.count] + self.pile_indent
-                    tokens.append(IndentToken(self.ligne_position,self.column ))
+                    tokens.append(IndentToken(self.ligne_position,self.position))
                     self.count = 0
                 else:
                     if self.count in self.pile_indent:
@@ -208,7 +205,7 @@ class Lexeur:
   
         
         elif self.charactere_actuelle == '\n':
-            tokens.append(NewlineToken(self.ligne_position,self.column))
+            tokens.append(NewlineToken(self.ligne_position,self.position))
             while self.peek()=='\n':
                 self.lire()
             if self.token:
@@ -221,7 +218,7 @@ class Lexeur:
 
         
         elif self.charactere_actuelle in '(){}[]:,' and not self.string:
-            tokens.append(PunctuationToken(self.charactere_actuelle, self.ligne_position, self.column))
+            tokens.append(PunctuationToken(self.charactere_actuelle, self.ligne_position, self.position))
         
         
         else:
@@ -229,7 +226,7 @@ class Lexeur:
             if operator_token:
                 tokens.append(operator_token)
             elif self.caractere_inconnu():
-                tokens.append(UnknownToken(self.charactere_actuelle,self.ligne_position,self.column))
+                tokens.append(UnknownToken(self.charactere_actuelle,self.ligne_position,self.position))
                 self.errors.append(UnknowCaracters((self.ligne_position),(self.charactere_actuelle)))
                 
     def Tokenisation(self):
@@ -239,6 +236,6 @@ class Lexeur:
             self.Identification(tokens)
         
         # Ajouter le token EOF à la fin
-        tokens.append(BaseToken(TokenType.EOF, '', self.ligne_position, self.column))
+        tokens.append(BaseToken(TokenType.EOF, '', self.ligne_position, self.position))
 
         return tokens,self.errors
