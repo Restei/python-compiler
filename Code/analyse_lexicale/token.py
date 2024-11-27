@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 from enum import Enum
 
 
@@ -130,3 +131,4 @@ class UnknowCaractersInVariable(Exception):
 class IndentException(Exception):
     def __init__(self,ligne):
         super().__init__(f"Line {ligne} : indentation error")
+
