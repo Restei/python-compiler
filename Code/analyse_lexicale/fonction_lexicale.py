@@ -74,7 +74,7 @@ class Lexeur:
         return self.charactere_actuelle.isalpha() or self.charactere_actuelle == '_'
     
     def caractere_inconnu(self):
-        caracteres_autorises = "!\"#%&'()*+,-./:;<=>?[\\]^_`{|}"
+        caracteres_autorises = "!\"#%&'()*+,-./:<=>?[\\]^_`{|} "
         if self.charactere_actuelle.isalnum() or self.charactere_actuelle in caracteres_autorises:
             return False 
         return True 
@@ -124,6 +124,14 @@ class Lexeur:
                 if len(self.token)>1:
                     self.errors.append(ZeroException(self.ligne_position,self.token))
                     return UnknownToken(self.token,self.ligne_position,self.position)
+
+
+                #verif de la taille 
+            if len(self.token)>10:
+                self.errors.append(NumberTooLongException(self.ligne_position,self.token))
+                return UnknownToken(self.token,self.ligne_position,self.position)
+
+
             return LiteralToken(self.token, self.ligne_position, self.position)
         
         elif self.string:
@@ -181,7 +189,7 @@ class Lexeur:
 
         elif self.token and not self.string:
             if not self.fin_de_mot():
-                if (not self.charactere()) and (not self.chiffre()) :
+                if (not self.charactere()) and (not self.chiffre()) and (not self.token_nombre):
                     self.variable_error = True
                 if self.token_nombre and not self.chiffre():
                     self.number_error = True
@@ -225,6 +233,9 @@ class Lexeur:
             operator_token = self.binary()  
             if operator_token:
                 tokens.append(operator_token)
+            elif self.caractere_inconnu():
+                tokens.append(UnknownToken(self.charactere_actuelle,self.ligne_position,self.position))
+                self.errors.append(UnknowCaracters((self.ligne_position),(self.charactere_actuelle)))
                 
     def Tokenisation(self):
         tokens = []

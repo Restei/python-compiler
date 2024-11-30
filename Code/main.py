@@ -2,11 +2,9 @@ from analyse_lexicale.fonction_lexicale import Lexeur,lire_fichier,affichage_fic
 from analyse_lexicale.token import TokenType, BaseToken
 
 path = "mini_python/"
-<<<<<<< HEAD
-fichier = "complique.py"
-=======
-fichier = "erreurs.py"
->>>>>>> origin/main
+
+fichier = "error.py"
+
 
 file = path + fichier
 
@@ -20,12 +18,8 @@ print("\n")
 
 for token in Tokens:
     print(repr(token))
-    
-for error in errors:
-<<<<<<< HEAD
-    print(repr(error))    
-=======
-    print(repr(error))
 
-    
->>>>>>> origin/main
+for error in errors:
+    print (error)    
+
+

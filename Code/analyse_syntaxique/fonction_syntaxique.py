@@ -1,6 +1,6 @@
-from GrammairesLL1 import *
-from analyse_lexicale import Lexeur  # Importer le lexeur pour transformer le code source en tokens
-from analyse_lexicale import TokenType  # Importer les types de tokens et exceptions
+from analyse_syntaxique.GrammaireLL1 import *
+from analyse_lexicale.fonction_lexicale import Lexeur  # Importer le lexeur pour transformer le code source en tokens
+from analyse_lexicale.fonction_lexicale import TokenType  # Importer les types de tokens et exceptions
 
 
 class LL1Parser:
@@ -72,6 +72,7 @@ class LL1Parser:
         except LL1SyntaxException as e:
             # Capture et affiche toute erreur de syntaxe
             print(f"Erreur de syntaxe : {e}")
+            raise 
 
     def file(self):
         """
@@ -173,20 +174,36 @@ class LL1Parser:
         Règle : stmt → <simplestmt> NEWLINE | if <exprinit> : <suite> <else>
         Analyse une instruction :
         - Une instruction simple suivie d'un NEWLINE
-        - Une condition `if`
+        - Une condition `if` avec éventuellement un `else`.
         """
-        if self.current_token.type == TokenType.KEYWORD and self.current_token.value == 'if':
-            self.consommer(TokenType.KEYWORD)  # Consomme le mot-clé `if`
-            self.exprinit()  # Analyse l'expression conditionnelle
-            self.consommer(TokenType.PUNCTUATION)  # Consomme ':'
-            self.suite()  # Analyse le bloc conditionnel
-            self.else_rule()  # Analyse l'éventuelle clause `else`
-        elif self.current_token.type == TokenType.KEYWORD and self.current_token.value == 'print':
-            self.simplestmt()  # Analyse une instruction simple
-            self.consommer(TokenType.NEWLINE)  # Consomme un NEWLINE final
-        else:
-            # Lève une erreur si le statement est incorrect
-            raise SimpleStatementError(self.current_token.line, self.current_token.column)
+        if not self.current_token:
+            # Lève une erreur si aucun token n'est disponible
+            raise UnexpectedEOFError(self.current_token.line if self.current_token else -1, 
+                                    self.current_token.column if self.current_token else -1)
+
+        try:
+            # Cas 1 : Une condition `if`
+            if self.current_token.type == TokenType.KEYWORD and self.current_token.value == 'if':
+                self.consommer(TokenType.KEYWORD)  # Consomme le mot-clé `if`
+                self.exprinit()  # Analyse l'expression conditionnelle
+                self.consommer(TokenType.PUNCTUATION)  # Consomme le `:`
+                self.suite()  # Analyse le bloc de code associé au `if`
+                self.else_rule()  # Analyse l'éventuelle clause `else`
+
+            # Cas 2 : Une instruction simple (comme un `print`)
+            elif self.current_token.type in [TokenType.KEYWORD, TokenType.IDENTIFIER]:
+                self.simplestmt()  # Analyse une instruction simple
+                self.consommer(TokenType.NEWLINE)  # Vérifie et consomme le NEWLINE final
+
+            else:
+                # Cas par défaut : Token inattendu pour une instruction
+                raise SimpleStatementError(
+                    self.current_token.line, self.current_token.column
+                )
+        except UnexpectedTokenError as e:
+            # Capture et relance l'erreur pour une meilleure traçabilité
+            raise SyntaxError(f"Erreur dans l'instruction à la ligne {e.line}, colonne {e.column}: {e.message}")
+
 
     def else_rule(self):
         """
@@ -237,16 +254,27 @@ class LL1Parser:
 
     def expr(self):
         """
-        Règle : expr → CONST | not <expr> | <exprprime>
-        Analyse une constante, une négation, ou une expression primaire.
+         Règle : expr → UnaryOp <expr> | CONST | not <expr> | <exprprime>
+        Analyse une constante, un opérateur unaire, une négation ou une expression primaire.
         """
         if self.current_token.type in [TokenType.NUMBER, TokenType.STRING]:
-            self.consommer(self.current_token.type)  # Consomme un nombre ou une chaîne
+            # Cas 1 : Constante (nombre ou chaîne de caractères)
+            self.consommer(self.current_token.type)  # Consomme le token (CONST)
+    
+        elif self.current_token.type == TokenType.OPERATOR_UNARY:
+        # Cas 2 : Opérateur unaire (comme +, -)
+            self.consommer(TokenType.OPERATOR_UNARY)  # Consomme l'opérateur unaire
+            self.expr()  # Analyse l'expression qui suit l'opérateur
+    
         elif self.current_token.type == TokenType.KEYWORD and self.current_token.value == 'not':
+        # Cas 3 : Négation logique
             self.consommer(TokenType.KEYWORD)  # Consomme le mot-clé `not`
             self.expr()  # Analyse l'expression qui suit
+    
         else:
-            self.exprprime()  # Analyse une expression primaire
+        # Cas 4 : Expression primaire
+            self.exprprime()  # Appel pour analyser une expression primaire
+
 
     def exprprime(self):
         """
@@ -272,6 +300,6 @@ class LL1Parser:
         Règle : exprdroit → BINOP <exprinit> | ε
         Analyse une continuation d'expression après un opérateur binaire.
         """
-        if self.current_token.type == TokenType.BINOP:
-            self.consommer(TokenType.BINOP)  # Consomme un opérateur binaire
+        if self.current_token.type == TokenType.OPERATOR_BINARY:
+            self.consommer(TokenType.OPERATOR_BINARY)  # Consomme un opérateur binaire
             self.exprinit()  # Analyse la partie droite de l'expression

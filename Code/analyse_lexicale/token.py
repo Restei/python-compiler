@@ -126,7 +126,17 @@ class UnknowCaractersInVariable(Exception):
     def __init__(self,ligne,variable):
         super().__init__(f"Line {ligne} : There cannot be unknow caracters in identifiers in {variable}")
 
+class UnknowCaracters(Exception):
+    def __init__(self,ligne,variable):
+        super().__init__(f"Line {ligne} : There cannot be unknow caracters {variable}")
 
 class IndentException(Exception):
     def __init__(self,ligne):
         super().__init__(f"Line {ligne} : indentation error")
+
+class NumberTooLongException(Exception):
+    def __init__(self, ligne, token):
+        self.ligne = ligne
+        self.token = token
+        
+        super().__init__(f"Le nombre {token} à la ligne {ligne} est trop long.")
