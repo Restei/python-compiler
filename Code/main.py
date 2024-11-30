@@ -1,5 +1,6 @@
 from analyse_lexicale.fonction_lexicale import Lexeur,lire_fichier,affichage_fichier
 from analyse_lexicale.token import TokenType, BaseToken
+from analyse_syntaxique.table_des_symboles import *
 
 path = "mini_python/"
 
@@ -19,7 +20,4 @@ print("\n")
 for token in Tokens:
     print(repr(token))
 
-for error in errors:
-    print (error)    
-
-
+#representation_TDS(creation_TDS(Tokens))
