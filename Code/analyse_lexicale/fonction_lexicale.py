@@ -124,6 +124,14 @@ class Lexeur:
                 if len(self.token)>1:
                     self.errors.append(ZeroException(self.ligne_position,self.token))
                     return UnknownToken(self.token,self.ligne_position,self.position)
+
+
+                #verif de la taille 
+            if len(self.token)>10:
+                self.errors.append(NumberTooLongException(self.ligne_position,self.token))
+                return UnknownToken(self.token,self.ligne_position,self.position)
+
+
             return LiteralToken(self.token, self.ligne_position, self.position)
         
         elif self.string:
