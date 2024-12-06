@@ -39,4 +39,4 @@ for token in Tokens:
 #except Exception as e:
 #    print(f"Une erreur critique est survenue : {e}")
 
-parse_with_tokens(tableau_des_symboles_directeur,Tokens,"file")
+parse_with_tokens(ll1_table,Tokens,"file")

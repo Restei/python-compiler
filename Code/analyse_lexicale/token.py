@@ -67,9 +67,9 @@ class BaseToken:
     
     def analyse_syntaxique(self):
         if self.type == TokenType.IDENTIFIER:
-            return 'IDENTIFIER'
+            return 'ident'
         elif self.type == TokenType.NUMBER:
-            return 'NUMBER'
+            return 'integer'
         elif self.type in {TokenType.OPERATOR_BINARY, TokenType.OPERATOR_UNARY}:
             return self.value
         elif self.type == TokenType.KEYWORD:
