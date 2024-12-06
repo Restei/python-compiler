@@ -385,6 +385,8 @@ ll1_table = {
     },
     "expr_prime": {
         "+": "expr_prime -> binop expr",
+        "*": "expr_prime -> binop expr",
+        "-": "expr_prime -> binop expr",
         "NEWLINE": "expr_prime -> ε",
         "]": "expr_prime -> ε"
     },
@@ -414,7 +416,9 @@ ll1_table = {
         "None": "const -> None"
     },
     "binop": {
-        "+": "binop -> +"
+        "+": "binop -> +",
+        "*": "binop -> *",
+        "-": "binop -> -"
     },
     
     "expr_droite": {

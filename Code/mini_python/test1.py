@@ -3,8 +3,8 @@ def f(a):
     return a
 def g(a):
     a = a + 4
+    a = a -1 
     return a
 a = []
-a[0] = 1
 b = a + 2
 print(a)
