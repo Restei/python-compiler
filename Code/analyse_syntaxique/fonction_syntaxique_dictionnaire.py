@@ -256,7 +256,7 @@ ll1_table = {
 grammar = {
     "file": {
         "NEWLINE": "file -> NEWLINE def_etoile stmt stmt_etoile EOF",
-        "Def": "file -> def_etoile stmt stmt_etoile EOF",
+        "def": "file -> def_etoile stmt stmt_etoile EOF",
         "ident": "file -> def_etoile stmt stmt_etoile EOF",
         "return": "file -> def_etoile stmt stmt_etoile EOF",
         "print": "file -> def_etoile stmt stmt_etoile EOF",
@@ -442,27 +442,6 @@ def parse_with_tokens(ll1_table,LL2_entries, tokens, start_symbol,initStack = No
             else:
                 print("Erreur: Fin de chaîne attendue mais non trouvée.",current_token.type,top)
                 return False
-            
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
         elif (top in ll1_table) and (token_type in ll1_table[top]):
             # Trouver la production pour ce non-terminal et ce token courant
             production = ll1_table[top][token_type]
@@ -472,10 +451,7 @@ def parse_with_tokens(ll1_table,LL2_entries, tokens, start_symbol,initStack = No
             if symbols != ["ε"]:
                 #print("symbole:",symbols)# Ignorer ε (epsilon)
                 stack = symbols + stack
-            else:
-                print(f"Erreur: Aucun règle pour {top} avec {token_type}.")
-                print(current_token)
-                return False
+        
         elif top in LL2_entries and token_type in LL2_entries[top]:
             production1 = LL2_entries[top][token_type][0]
             production2 = LL2_entries[top][token_type][1]
@@ -492,31 +468,10 @@ def parse_with_tokens(ll1_table,LL2_entries, tokens, start_symbol,initStack = No
                 return parse_with_tokens(ll1_table,LL2_entries,tokens,start_symbol,initStack=stack1,startindex=index)
             else:
                 return parse_with_tokens(ll1_table,LL2_entries,tokens,start_symbol,initStack=stack2,startindex=index)
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-            
+        elif top in ll1_table or top in LL2_entries:
+            print(f"Erreur: Aucun règle pour {top} avec {token_type}.")
+            print(current_token)
+            return False
         else:
             print(f"Erreur: Symbole inattendu {top} {current_token.analyse_syntaxique()}.")
             print(current_token)
