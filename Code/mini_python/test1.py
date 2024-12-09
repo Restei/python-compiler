@@ -1,10 +1,6 @@
 def f(a):
-    a = a + 2
+    a = a + 2 * 4 - 6
     return a
-def g(a):
-    a = a + 4
-    return a
-a = []
-a[0] = 1
-b = a + 2
 print(a)
+a[0] = 1 + b - 6
+a = []

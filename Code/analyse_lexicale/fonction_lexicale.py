@@ -80,7 +80,7 @@ class Lexeur:
         return True 
 
     def fin_de_mot(self):
-        fin = [',', '\n', ' ', '+', '-', ':', '(', ')', '[', ']', '/', '*', '=', '.']
+        fin = [',', '\n', ' ', '+', '-', ':', '(', ')', '[', ']', '/', '*', '=', '.','<','>']
         return self.charactere_actuelle in fin
     def unary_operator(self):
         operator_type = TokenType.is_unary_operator(self.charactere_actuelle)
