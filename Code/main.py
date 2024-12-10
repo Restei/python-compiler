@@ -1,33 +1,24 @@
-from analyse_syntaxique.fonction_syntaxique import * 
-from analyse_syntaxique.GrammairesLL1 import *
+from analyse_lexicale.fonction_lexicale import Lexeur,lire_fichier,affichage_fichier
+from analyse_lexicale.token import TokenType, BaseToken
+from analyse_syntaxique.table_des_symboles import *
 
-# Charger le contenu du fichier source
-fichier_source = lire_fichier("Code/mini_python/expression.py")
+path = "mini_python/"
+fichier = "erreurs.py"
 
-# Étape 1 : Analyse lexicale
-Lex1 = Lexeur(fichier_source)  # Instancie le lexeur
-Lex1.Tokenisation()  # Génère les tokens et détecte les erreurs lexicales
+file = path + fichier
 
-if Lex1.errors:
-    # Si des erreurs lexicales sont détectées, les afficher
-    print("Erreurs lexicales détectées :")
-    for erreur in Lex1.errors:
-        print(erreur)
-else:
-    print("Analyse lexicale réussie. Les tokens sont prêts pour l'analyse syntaxique.")
+Lex1 = Lexeur(lire_fichier(file))
 
-# Étape 2 : Analyse syntaxique
-try:
-    parser = LL1Parser(fichier_source)  # Instancie le parseur LL(1)
-    parser.parse()  # Lance l'analyse syntaxique
+#print(lire_fichier("mini_python/variable.py"))
 
-    if parser.errors:
-        # Si des erreurs syntaxiques sont détectées, les afficher
-        print("\nErreurs syntaxiques détectées :")
-        for erreur in parser.errors:
-            print(erreur)
-    else:
-        print("\nAnalyse syntaxique réussie. Aucun problème détecté.")
-except Exception as e:
-    print(f"Une erreur critique est survenue : {e}")
+Tokens,errors = Lex1.Tokenisation()
+#affichage_fichier(file)
+print("\n")
 
+for token in Tokens:
+    print(repr(token))
+    
+for error in errors:
+    print(repr(error))
+
+#representation_TDS(creation_TDS(Tokens))

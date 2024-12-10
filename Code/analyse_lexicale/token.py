@@ -64,6 +64,30 @@ class BaseToken:
 
     def __repr__(self):
         return f'{self.type.name}({self.value}) at line {self.line}, column {self.column}'
+    
+    def analyse_syntaxique(self):
+        if self.type == TokenType.IDENTIFIER:
+            return 'ident'
+        elif self.type == TokenType.NUMBER:
+            return 'integer'
+        elif self.type in {TokenType.OPERATOR_BINARY, TokenType.OPERATOR_UNARY}:
+            return self.value
+        elif self.type == TokenType.KEYWORD:
+            return self.value
+        elif self.type == TokenType.PUNCTUATION:
+            return self.value
+        elif self.type == TokenType.STRING:
+            return 'string'
+        elif self.type == TokenType.NEWLINE:
+            return 'NEWLINE'
+        elif self.type == TokenType.BEGIN:
+            return 'BEGIN'
+        elif self.type == TokenType.END:
+            return 'END'
+        elif self.type == TokenType.UNKNOWN:
+            return 'unknown'
+        else:
+            return None
 
 
 class KeywordToken(BaseToken):
@@ -126,6 +150,9 @@ class UnknowCaractersInVariable(Exception):
     def __init__(self,ligne,variable):
         super().__init__(f"Line {ligne} : There cannot be unknow caracters in identifiers in {variable}")
 
+class UnknowCaracters(Exception):
+    def __init__(self,ligne,variable):
+        super().__init__(f"Line {ligne} : There cannot be unknow caracters {variable}")
 
 class IndentException(Exception):
     def __init__(self,ligne):

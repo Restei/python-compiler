@@ -41,6 +41,10 @@ class Node:
 
     def getname(self):
         return self.name
+    
+    def ajouter_fils_noeud(self,node):
+        self.succ.append(node) 
+
 
     def ajouter_fils(self,node):
         self.succ.append(Node(node)) 
@@ -123,6 +127,7 @@ class Node:
         
         
 
+<<<<<<< HEAD
 R = Node("Root")
 R.ajouter_fils("R")
 
@@ -133,3 +138,15 @@ R[0].ajouter_fils("2")
 
 R[0].ajouter_fils("R5")
 R.dessine()
+=======
+#R = Node("Root")
+#R.ajouter_fils("R")
+#
+#R.ajouter_fils("RU")
+#
+#R.ajouter_fils("RUS")
+#R[0].ajouter_fils("2")
+#
+#R[0].ajouter_fils("R5")
+#R.dessine()
+>>>>>>> 9a033866df6514142681068a0207a7a26b792208
