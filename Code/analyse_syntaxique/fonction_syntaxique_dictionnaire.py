@@ -1,230 +1,6 @@
 from analyse_lexicale.token import *
 from analyse_syntaxique.arbre import *
 
-tableau_des_symboles_directeur ={
-    "file": {
-        "NEWLINE": "file -> NEWLINE def_etoile stmt stmt_etoile EOF",
-        "def": "file -> def_etoile stmt stmt_etoile EOF",
-        "IDENTIFIER": "file -> def_etoile stmt stmt_etoile EOF",
-        "return": "file -> def_etoile stmt stmt_etoile EOF",
-        "print": "file -> def_etoile stmt stmt_etoile EOF",
-        "if": "file -> def_etoile stmt stmt_etoile EOF",
-        "for": "file -> def_etoile stmt stmt_etoile EOF",
-        "-": "file -> def_etoile stmt stmt_etoile EOF",
-        "not": "file -> def_etoile stmt stmt_etoile EOF",
-        "NUMBER": "file -> def_etoile stmt stmt_etoile EOF",
-        "string": "file -> def_etoile stmt stmt_etoile EOF",
-        "True": "file -> def_etoile stmt stmt_etoile EOF",
-        "False": "file -> def_etoile stmt stmt_etoile EOF",
-        "None": "file -> def_etoile stmt stmt_etoile EOF"
-    },
-    "def_etoile": {
-        "def": "def_etoile -> Def def_etoile",
-        "IDENTIFIER": "def_etoile -> ε",
-        "return": "def_etoile -> ε",
-        "print": "def_etoile -> ε",
-        "if": "def_etoile -> ε",
-        "for": "def_etoile -> ε",
-        "-": "def_etoile -> ε",
-        "not": "def_etoile -> ε",
-        "NUMBER": "def_etoile -> ε",
-        "string": "def_etoile -> ε",
-        "True": "def_etoile -> ε",
-        "False": "def_etoile -> ε",
-        "None": "def_etoile -> ε"
-    },
-    "stmt_etoile": {
-        "IDENTIFIER": "stmt_etoile -> stmt stmt_etoile",
-        "return": "stmt_etoile -> stmt stmt_etoile",
-        "print": "stmt_etoile -> stmt stmt_etoile",
-        "if": "stmt_etoile -> stmt stmt_etoile",
-        "for": "stmt_etoile -> stmt stmt_etoile",
-        "-": "stmt_etoile -> stmt stmt_etoile",
-        "not": "stmt_etoile -> stmt stmt_etoile",
-        "NUMBER": "stmt_etoile -> stmt stmt_etoile",
-        "string": "stmt_etoile -> stmt stmt_etoile",
-        "True": "stmt_etoile -> stmt stmt_etoile",
-        "False": "stmt_etoile -> stmt stmt_etoile",
-        "None": "stmt_etoile -> stmt stmt_etoile",
-        "EOF": "stmt_etoile -> ε",
-        "END": "stmt_etoile -> ε"
-    },
-    
-    "Def": {
-        "def": "Def -> def IDENTIFIER ( arg ) : suite"
-    },
-    "arg": {
-        "IDENTIFIER": "arg -> IDENTIFIER next_arg",
-        ")": "arg -> ε"
-    },
-    "next_arg": {
-        ",": "next_arg -> , IDENTIFIER next_arg",
-        ")": "next_arg -> ε"
-    },
-    "suite": {
-        "NEWLINE": "suite -> NEWLINE BEGIN stmt stmt_etoile END",
-        "return": "suite -> simple_stmt NEWLINE",
-        "print": "suite -> simple_stmt NEWLINE",
-        "IDENTIFIER": "suite -> simple_stmt NEWLINE"
-    },
-    "simple_stmt": {
-        "return": "simple_stmt -> return expr_init",
-        "print": "simple_stmt -> print ( expr_init )",
-        "IDENTIFIER": "simple_stmt -> IDENTIFIER simple_stmt_ident",
-        "-": "simple_stmt -> expr_init",
-        "not": "simple_stmt -> expr_init",
-        "NUMBER": "simple_stmt -> expr_init",
-        "string": "simple_stmt -> expr_init",
-        "True": "simple_stmt -> expr_init",
-        "False": "simple_stmt -> expr_init",
-        "None": "simple_stmt -> expr_init"
-    },
-    "simple_stmt_ident": {
-        "=": "simple_stmt_ident -> = expr_init",
-        "(": "simple_stmt_ident -> expr_ident",
-        "NEWLINE":"simple_stmt_ident -> expr_ident"
-    },
-    "stmt": {
-        "return": "stmt -> simple_stmt NEWLINE",
-        "print": "stmt -> simple_stmt NEWLINE",
-        "IDENTIFIER": "stmt -> simple_stmt NEWLINE",
-        "if": "stmt -> if expr_init : suite else",
-        "for": "stmt -> for expr_init in expr_init : suite"
-    },
-    "else": {
-        "Else": "else -> Else : suite",
-        "NEWLINE": "else -> ε",
-        "END": "else -> ε"
-    },
-    "expr_init": {
-        "(": "expr_init -> expr expr_droite",
-        "-": "expr_init -> expr expr_droite",
-        "not": "expr_init -> expr expr_droite",
-        "[": "expr_init -> expr expr_droite",
-        "NUMBER": "expr_init -> expr expr_droite",
-        "string": "expr_init -> expr expr_droite",
-        "True": "expr_init -> expr expr_droite",
-        "False": "expr_init -> expr expr_droite",
-        "None": "expr_init -> expr expr_droite"
-    },
-    "expr": {
-        "(": "expr -> ( expre )",
-        "-": "expr -> - expre",
-        "not": "expr -> not expre",
-        "[": "expr -> [ expr_etoile ]",
-        "NUMBER": "expr -> const",
-        "string": "expr -> const",
-        "True": "expr -> const",
-        "False": "expr -> const",
-        "None": "expr -> const"
-    },
-    
-        "expr_identif": {
-        "IDENTIFIER": "expr_identif -> IDENTIFIER expr_ident"
-    },
-    "expre": {
-        "(": "expre -> expr",
-        "-": "expre -> expr",
-        "not": "expre -> expr",
-        "[": "expre -> expr",
-        "NUMBER": "expre -> expr",
-        "string": "expre -> expr",
-        "True": "expre -> expr",
-        "False": "expre -> expr",
-        "None": "expre -> expr",
-        "IDENTIFIER": "expre -> expr_identif"
-    },
-    "expr_prime": {
-        "[": "expr_prime -> [ expr ]",
-        "+": "expr_prime -> OPERATOR_UNARY expr",
-        "-": "expr_prime -> OPERATOR_UNARY expr",
-        "*": "expr_prime -> OPERATOR_UNARY expr",
-        "/": "expr_prime -> OPERATOR_UNARY expr",
-        "%": "expr_prime -> OPERATOR_UNARY expr",
-        "<": "expr_prime -> OPERATOR_UNARY expr",
-        ">": "expr_prime -> OPERATOR_UNARY expr",
-        "!=": "expr_prime -> OPERATOR_UNARY expr",
-        "=": "expr_prime -> OPERATOR_UNARY expr"
-    },
-    "expr_ident": {
-        "(": "expr_ident -> ( expr_etoile )",
-        ")": "expr_ident -> ε",
-        "]": "expr_ident -> ε",
-        ",": "expr_ident -> ε",
-        "+": "expr_ident -> ε",
-        "-": "expr_ident -> ε",
-        "*": "expr_ident -> ε",
-        "/": "expr_ident -> ε",
-        "%": "expr_ident -> ε",
-        "<": "expr_ident -> ε",
-        ">": "expr_ident -> ε",
-        "!=": "expr_ident -> ε",
-        "==": "expr_ident -> ε",
-        "=": "expr_ident -> ε"
-    },
-    "expr_droite": {
-        "]": "expr_droite -> ε",
-        "NEWLINE": "expr_droite -> ε",
-        ",": "expr_droite -> ε",
-        "+": "expr_droite -> expr_prime expr_droite",
-        "-": "expr_droite -> expr_prime expr_droite",
-        "*": "expr_droite -> expr_prime expr_droite",
-        "/": "expr_droite -> expr_prime expr_droite",
-        "%": "expr_droite -> expr_prime expr_droite",
-        "<": "expr_droite -> expr_prime expr_droite",
-        ">": "expr_droite -> expr_prime expr_droite",
-        "!=": "expr_droite -> expr_prime expr_droite",
-        "=": "expr_droite -> expr_prime expr_droite"
-    },
-    "expr_etoile": {
-        "]": "expr_etoile -> ε",
-        "(": "expr_etoile -> expre expr_plus",
-        "IDENTIFIER": "expr_etoile -> expre expr_plus",
-        "NUMBER": "expr_etoile -> expre expr_plus",
-        "string": "expr_etoile -> expre expr_plus",
-        "True": "expr_etoile -> expre expr_plus",
-        "False": "expr_etoile -> expre expr_plus",
-        "None": "expr_etoile -> expre expr_plus"
-    },
-    "expr_plus": {
-        "]": "expr_plus -> ε",
-        ",": "expr_plus -> , expre expr_plus"
-    },
-    "OPERATOR_UNARY": {
-        "+": "OPERATOR_UNARY -> +",
-        "-": "OPERATOR_UNARY -> -",
-        "*": "OPERATOR_UNARY -> *",
-        "//": "OPERATOR_UNARY -> //",
-        "%": "OPERATOR_UNARY -> %",
-        "<": "OPERATOR_UNARY -> < double",
-        ">": "OPERATOR_UNARY -> > double",
-        "!=": "OPERATOR_UNARY -> ! =",
-        "=": "OPERATOR_UNARY -> = double"
-    },
-    "double": {
-        "=": "double -> =",
-        ")": "double -> ε",
-        "]": "double -> ε",
-        ",": "double -> ε",
-        "+": "double -> ε",
-        "-": "double -> ε",
-        "*": "double -> ε",
-        "/": "double -> ε",
-        "%": "double -> ε",
-        "<": "double -> ε",
-        ">": "double -> ε",
-        "!=": "double -> ε"
-    },
-    "const": {
-        "NUMBER": "const -> NUMBER",
-        "string": "const -> string",
-        "True": "const -> True",
-        "False": "const -> False",
-        "None": "const -> None"
-    }
-
-}
-
 ll1_table = {
     "file": {
         "NEWLINE": "file -> NEWLINE def_etoile stmt stmt_etoile EOF",
@@ -241,7 +17,8 @@ ll1_table = {
         "string": "file -> def_etoile stmt stmt_etoile EOF",
         "True": "file -> def_etoile stmt stmt_etoile EOF",
         "False": "file -> def_etoile stmt stmt_etoile EOF",
-        "None": "file -> def_etoile stmt stmt_etoile EOF"
+        "None": "file -> def_etoile stmt stmt_etoile EOF",
+        "[": " file -> def_etoile stmt stmt_etoile EOF"
     },
     "def_etoile": {
         "def": "def_etoile -> Def def_etoile",
@@ -252,6 +29,7 @@ ll1_table = {
         "return": "def_etoile -> ε",
         "print": "def_etoile -> ε",
         "-": "def_etoile -> ε",
+        "[": "def_etoile → ε",
         "not": "def_etoile -> ε",
         "integer": "def_etoile -> ε",
         "string": "def_etoile -> ε",
@@ -274,7 +52,8 @@ ll1_table = {
         "False": "stmt_etoile -> stmt stmt_etoile",
         "None": "stmt_etoile -> stmt stmt_etoile",
         "EOF": "stmt_etoile -> ε",
-        "END": "stmt_etoile -> ε"
+        "END": "stmt_etoile -> ε",
+        "[" : "stmt_etoile → stmt stmt_etoile"
     },
     "Def": {
         "def": "Def -> def ident ( arg ) : suite"
@@ -320,8 +99,23 @@ ll1_table = {
     },
     "else": {
         "Else": "else -> Else : suite",
-        "NEWLINE": "else -> ε",
-        "END": "else -> ε"
+        "not" : "else -> ε",
+        "END": "else -> ε",
+        "integer":  "else -> ε",
+        "string": "else -> ε",
+        "True": "else -> ε",
+        "False": "else -> ε",
+        "None": "else -> ε",
+        "[": "else -> ε",
+        "-": "else -> ε",
+        "print": "else -> ε",
+        "return" : "else -> ε",
+        "for" : "else -> ε",
+        "if" : "else -> ε",
+        "END": "else -> ε",
+        "(": "else -> ε",
+        "ident" : "else -> ε",
+        "EOF" : "else -> ε"
     },
     "simple_stmt": {
         "ident": "simple_stmt -> expr_stmt affect",
@@ -370,7 +164,8 @@ ll1_table = {
         "NEWLINE": "ident_fact -> ε",
         "]": "ident_fact -> ε",
         "=": "ident_fact -> ε",
-        "+": "ident_fact -> binop expr expr_prime"
+        "+": "ident_fact -> binop expr expr_prime",
+        "[": "ident_fact -> [ expr_init ] expr_crochet"
     },
     "expr": {
         "ident": "expr -> ident ident_expr",
@@ -400,7 +195,8 @@ ll1_table = {
         "True": "expr_etoile_init -> expr expr_etoile",
         "False": "expr_etoile_init -> expr expr_etoile",
         "None": "expr_etoile_init -> expr expr_etoile",
-        "]": "expr_etoile_init -> ε"
+        "]": "expr_etoile_init -> ε",
+        ")": "expr_etoile_init -> ε"
     },
     "expr_etoile": {
         ",": "expr_etoile -> , expr expr_etoile",
@@ -427,11 +223,11 @@ ll1_table = {
     "<": "expr_droite -> expr_prime expr_droite",
     ">": "expr_droite -> expr_prime expr_droite",
     "!=": "expr_droite -> expr_prime expr_droite",
-    "=": "expr_droite -> expr_prime expr_droite",
+    "==": "expr_droite -> expr_prime expr_droite",
     "NEWLINE": "expr_droite -> ε",
     "]": "expr_droite -> ε",
     ")": "expr_droite -> ε",
-    ",": "expr_droite -> ε"
+    "[": "expr_droite -> ε"
 },
     "ident_expr": {
     "(": "ident_expr -> ( expr_etoile_init )",
@@ -447,12 +243,159 @@ ll1_table = {
     "NEWLINE": "ident_expr -> ε",
     "]": "ident_expr -> ε",
     ")": "ident_expr -> ε",
-    ",": "ident_expr -> ε"
+    ",": "ident_expr -> ε",
+    "[": "ident_expr -> ε",
+    ":": "ident_expr -> ε"
+},
+    "expr_crochet": {
+        "NEWLINE" : "expr_crochet -> ε",
+        "=" : "expr_crochet -> ε",
+        "[" : "expr_crochet -> [ expr_init ] expr_crochet"
+    }
 }
 
-
+grammar = {
+    "file": {
+        "NEWLINE": "file -> NEWLINE def_etoile stmt stmt_etoile EOF",
+        "def": "file -> def_etoile stmt stmt_etoile EOF",
+        "ident": "file -> def_etoile stmt stmt_etoile EOF",
+        "return": "file -> def_etoile stmt stmt_etoile EOF",
+        "print": "file -> def_etoile stmt stmt_etoile EOF",
+    },
+    "def_etoile": {
+        "def": "def_etoile -> def def_etoile",
+        "ident": "def_etoile -> ε",
+        "return": "def_etoile -> ε",
+        "print": "def_etoile -> ε",
+    },
+    "stmt_etoile": {
+        "NEWLINE": "stmt_etoile -> ε",
+        "ident": "stmt_etoile -> stmt stmt_etoile",
+        "return": "stmt_etoile -> stmt stmt_etoile",
+        "print": "stmt_etoile -> stmt stmt_etoile",
+    },
+    "def": {
+        "Def": "def -> Def ident '(' arg ')' ':' suite",
+    },
+    "arg": {
+        "ident": "arg -> ident next_arg",
+        ")": "arg -> ε",
+    },
+    "next_arg": {
+        ")": "next_arg -> ε",
+        ",": "next_arg -> ',' ident next_arg",
+    },
+    "suite": {
+        "NEWLINE": "suite -> NEWLINE BEGIN stmt stmt_etoile END",
+        "return": "suite -> simple_stmt NEWLINE",
+        "print": "suite -> simple_stmt NEWLINE",
+        "ident": "suite -> simple_stmt NEWLINE",
+    },
+    "simple_stmt": {
+        "return": "simple_stmt -> return expr_init",
+        "print": "simple_stmt -> print '(' expr_init ')'",
+        },
+    "simple_stmt_tail": {
+        "=": "simple_stmt_tail -> '=' expr_init",
+    },
+    "stmt": {
+        "return": "stmt -> simple_stmt NEWLINE",
+        "print": "stmt -> simple_stmt NEWLINE",
+        "ident": "stmt -> simple_stmt NEWLINE",
+        "if": "stmt -> if expr_init ':' suite else",
+        "for": "stmt -> for expr_init in expr_init ':' suite",
+    },
+    "else": {
+        "Else": "else -> Else ':' suite",
+        "NEWLINE": "else -> ε",
+        "ident": "else -> ε",
+    },
+    "expr_init": {
+        "ident": "expr_init -> expr_logic",
+        "(": "expr_init -> expr_logic",
+        "integer": "expr_init -> expr_logic",
+        "string": "expr_init -> expr_logic",
+    },
+    "expr_logic": {
+        "ident": "expr_logic -> expr_comp expr_logic_tail",
+        "(": "expr_logic -> expr_comp expr_logic_tail",
+        "integer": "expr_logic -> expr_comp expr_logic_tail",
+        "string": "expr_logic -> expr_comp expr_logic_tail",
+    },
+    "expr_logic_tail": {
+        "or": "expr_logic_tail -> or expr_comp expr_logic_tail",
+        "NEWLINE": "expr_logic_tail -> ε",
+        "ident": "expr_logic_tail -> ε",
+    },
+    "expr_comp": {
+        "ident": "expr_comp -> expr_low expr_comp_tail",
+        "(": "expr_comp -> expr_low expr_comp_tail",
+        "integer": "expr_comp -> expr_low expr_comp_tail",
+    },
+    "expr_comp_tail": {
+        "<": "expr_comp_tail -> < expr_low",
+        "<=": "expr_comp_tail -> <= expr_low",
+        ">": "expr_comp_tail -> > expr_low",
+        ">=": "expr_comp_tail -> >= expr_low",
+        "==": "expr_comp_tail -> == expr_low",
+        "!=": "expr_comp_tail -> != expr_low",
+        "NEWLINE": "expr_comp_tail -> ε",
+    },
+    "expr_low": {
+        "ident": "expr_low -> expr_high expr_low_tail",
+        "(": "expr_low -> expr_high expr_low_tail",
+        "integer": "expr_low -> expr_high expr_low_tail",
+    },
+    "expr_low_tail": {
+        "+": "expr_low_tail -> + expr_high expr_low_tail",
+        "-": "expr_low_tail -> - expr_high expr_low_tail",
+        "NEWLINE": "expr_low_tail -> ε",
+    },
+    "expr_high": {
+        "ident": "expr_high -> expr_unary expr_high_tail",
+        "(": "expr_high -> expr_unary expr_high_tail",
+        "integer": "expr_high -> expr_unary expr_high_tail",
+    },
+    "expr_high_tail": {
+        "*": "expr_high_tail -> * expr_unary expr_high_tail",
+        "/": "expr_high_tail -> / expr_unary expr_high_tail",
+        "//": "expr_high_tail -> // expr_unary expr_high_tail",
+        "%": "expr_high_tail -> % expr_unary expr_high_tail",
+        "NEWLINE": "expr_high_tail -> ε",
+    },
+    "expr_unary": {
+        "-": "expr_unary -> - expr_primary",
+        "not": "expr_unary -> not expr_primary",
+        "ident": "expr_unary -> expr_primary",
+        "(": "expr_unary -> expr_primary",
+        "integer": "expr_unary -> expr_primary",
+    },
+    "expr_primary": {
+        "ident": "expr_primary -> expr_primary_extra",
+        "(": "expr_primary -> ( expr )",
+        "integer": "expr_primary -> const",
+        "string": "expr_primary -> const",
+        "True": "expr_primary -> const",
+        "False": "expr_primary -> const",
+        "None": "expr_primary -> const",
+    },
+    "expr_primary_extra": {
+        "ident": "expr_primary_extra -> ident expr_primary_tail",
+    },
+    "expr_primary_tail": {
+        "[": "expr_primary_tail -> [ expr_init ] expr_primary_tail",
+        "NEWLINE": "expr_primary_tail -> ε",
+    },
+    "const": {
+        "integer": "const -> integer",
+        "string": "const -> string",
+        "True": "const -> True",
+        "False": "const -> False",
+        "None": "const -> None",
+    },
 }
 
+LL2_entries = {"simple_stmt" : {"ident": ["simple_stmt -> expr_init simple_stmt_tail", "simple_stmt -> expr_primary_extra simple_stmt_tail"]}}
 
 tableau_des_symboles_directeur_ll1_ultime = {
     "file": {#ok
@@ -991,8 +934,7 @@ grammar = {
     },
 }
 
-
-def parse_with_tokens(ll1_table, tokens, start_symbol):
+def parse_with_tokens(ll1_table,LL2_entries, tokens, start_symbol,initStack = None, startindex = 0):
     """
     Analyse syntaxique adaptée aux classes Token.
     
@@ -1007,17 +949,24 @@ def parse_with_tokens(ll1_table, tokens, start_symbol):
     # Ajouter un token spécial EOF pour marquer la fin de la chaîne
     #eof_token = BaseToken(TokenType.EOF, "$", -1, -1)
     #tokens.append(eof_token)
-    
+    print(initStack)
     # Initialiser la pile avec le symbole de départ et EOF
-    stack = [start_symbol]
     
+    if initStack is None:
+        stack = [start_symbol]
+        index = 0
+
+    else:
+        stack = initStack
+        index = startindex
+        print(f"New stack {startindex}")
     # Pointeur sur le token courant
-    index = 0
     
     while stack:
         top = stack[0]  # Extraire le sommet de la pile
         stack = stack[1:]
         current_token = tokens[index]  # Lire le token courant
+        token_type = current_token.analyse_syntaxique()
         # Si le sommet est un terminal (valeur littérale)
         if top == current_token.analyse_syntaxique():
             #print(f"Match terminal: {top}")
@@ -1030,23 +979,40 @@ def parse_with_tokens(ll1_table, tokens, start_symbol):
             else:
                 print("Erreur: Fin de chaîne attendue mais non trouvée.",current_token.type,top)
                 return False
-        elif top in ll1_table:
+        elif (top in ll1_table) and (token_type in ll1_table[top]):
             # Trouver la production pour ce non-terminal et ce token courant
-            token_type = current_token.analyse_syntaxique()
-            if token_type in ll1_table[top]:
-                production = ll1_table[top][token_type]
-                print(f"Appliquer règle: {production}")
-                # Ajouter les symboles de la règle dans la pile (dans l'ordre inverse)
-                symbols = production.split("->")[1].strip().split()
-                if symbols != ["ε"]:
-                    #print("symbole:",symbols)# Ignorer ε (epsilon)
-                    stack = symbols + stack
-                    
+            production = ll1_table[top][token_type]
+            print(f"Appliquer règle: {production}")
+            # Ajouter les symboles de la règle dans la pile (dans l'ordre inverse)
+            symbols = production.split("->")[1].strip().split()
+            if symbols != ["ε"]:
+                #print("symbole:",symbols)# Ignorer ε (epsilon)
+                stack = symbols + stack
+        
+        elif top in LL2_entries and token_type in LL2_entries[top]:
+            production1 = LL2_entries[top][token_type][0]
+            production2 = LL2_entries[top][token_type][1]
+            symbols1 = production1.split("->")[1].strip().split()
+            symbols2 = production2.split("->")[1].strip().split()
+            if symbols1 != ["ε"]:
+                #print("symbole:",symbols)# Ignorer ε (epsilon)
+                stack1 = symbols1 + stack
+                print(stack1)
+            if symbols2 != ["ε"]:
+                #print("symbole:",symbols)# Ignorer ε (epsilon)
+                stack2 = symbols2 + stack
+            if (parse_with_tokens(ll1_table,LL2_entries,tokens,start_symbol,initStack=stack1,startindex=index)==True):
+                return parse_with_tokens(ll1_table,LL2_entries,tokens,start_symbol,initStack=stack1,startindex=index)
             else:
-                print(f"Erreur: Aucun règle pour {top} avec {token_type}.")
-                return False
+                return parse_with_tokens(ll1_table,LL2_entries,tokens,start_symbol,initStack=stack2,startindex=index)
+        elif top in ll1_table or top in LL2_entries:
+            print(f"Erreur: Aucun règle pour {top} avec {token_type}.")
+            print(current_token)
+            return False
         else:
             print(f"Erreur: Symbole inattendu {top} {current_token.analyse_syntaxique()}.")
+            print(current_token)
+
             return False
     
     # Si la pile est vide mais il reste des tokens, erreur
