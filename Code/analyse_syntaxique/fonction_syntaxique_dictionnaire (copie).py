@@ -300,7 +300,7 @@ tableau_des_symboles_directeur_ll1_ultime = {
         "ident": "stmt -> simple_stmt NEWLINE",
         "return": "stmt -> simple_stmt NEWLINE",
         "print": "stmt -> simple_stmt NEWLINE",
-        "if": "stmt -> if expr_init : suite else",
+        "if": "stmt -> if expr_init : suite Else",
         "for": "stmt -> for expr_init in expr_init : suite",
     },
     

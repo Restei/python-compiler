@@ -505,7 +505,7 @@ tableau_des_symboles_directeur_ll1_ultime = {
     },
         
     "simple_stmt_tail":{ #ok
-        "ident":"simple_stmt_tail -> ( argument )",
+        "(":"simple_stmt_tail -> ( argument )",
         "=":"simple_stmt_tail -> simple_stmt_tail_tail = expr_init",
         "[":"simple_stmt_tail -> simple_stmt_tail_tail = expr_init"
         },
@@ -514,26 +514,31 @@ tableau_des_symboles_directeur_ll1_ultime = {
         "=":"simple_stmt_tail_tail -> ε",
         "[":"simple_stmt_tail_tail -> [ expr_init ] simple_stmt_tail_tail"
         },
+
     "argument":{ #ok
         "ident": "argument -> expr_init next_argument",
         "(": "argument -> expr_init next_argument",
         ")": "argument -> ε",
+        "]": "argument -> ε",
         "-": "argument -> expr_init next_argument",
         "integer": "argument -> expr_init next_argument",
         "string": "argument -> expr_init next_argument",
         "True": "argument -> expr_init next_argument",
         "False": "argument -> expr_init next_argument",
+        "False": "argument -> expr_init next_argument",
+        "[": "argument -> expr_init next_argument",
         "None": "argument -> expr_init next_argument"
         },
     "next_argument": { #ok
         ",": "next_argument -> , expr_init next_argument",
         ")": "next_argument -> ε",
+        "]": "next_argument -> ε",
     },
     "stmt": { #ok
         "ident": "stmt -> simple_stmt NEWLINE",
         "return": "stmt -> simple_stmt NEWLINE",
         "print": "stmt -> simple_stmt NEWLINE",
-        "if": "stmt -> if expr_init : suite else",
+        "if": "stmt -> if expr_init : suite Else",
         "for": "stmt -> for expr_init in expr_init : suite",
     },
     
@@ -552,6 +557,7 @@ tableau_des_symboles_directeur_ll1_ultime = {
     "expr_init": { #ok
         "ident": "expr_init -> expr_logic",
         "(": "expr_init -> expr_logic",
+        "[": "expr_init -> expr_logic",
         "-": "expr_init -> expr_logic",
         "not": "expr_init -> expr_logic",
         "integer": "expr_init -> expr_logic",
@@ -563,6 +569,7 @@ tableau_des_symboles_directeur_ll1_ultime = {
     "expr_logic": { #ok
         "ident": "expr_logic -> expr_comp expr_logic_tail",
         "(": "expr_logic -> expr_comp expr_logic_tail",
+        "[": "expr_logic -> expr_comp expr_logic_tail",
         "-": "expr_logic -> expr_comp expr_logic_tail",
         "not": "expr_logic -> expr_comp expr_logic_tail",
         "integer": "expr_logic -> expr_comp expr_logic_tail",
@@ -583,6 +590,7 @@ tableau_des_symboles_directeur_ll1_ultime = {
     "expr_comp": { #ok
         "ident": "expr_comp -> expr_low expr_comp_tail",
         "(": "expr_comp -> expr_low expr_comp_tail",
+        "[": "expr_comp -> expr_low expr_comp_tail",
         "-": "expr_comp -> expr_low expr_comp_tail",
         "not": "expr_comp -> expr_low expr_comp_tail",
         "integer": "expr_comp -> expr_low expr_comp_tail",
@@ -617,6 +625,7 @@ tableau_des_symboles_directeur_ll1_ultime = {
     "expr_low": { #ok
         "ident": "expr_low -> expr_high expr_low_tail",
         "(": "expr_low -> expr_high expr_low_tail",
+        "[": "expr_low -> expr_high expr_low_tail",
         "-": "expr_low -> expr_high expr_low_tail",
         "not": "expr_low -> expr_high expr_low_tail",
         "integer": "expr_low -> expr_high expr_low_tail",
@@ -646,6 +655,7 @@ tableau_des_symboles_directeur_ll1_ultime = {
     "expr_high": { #ok
         "ident": "expr_high -> expr_unary expr_high_tail",
         "(": "expr_high -> expr_unary expr_high_tail",
+        "[": "expr_high -> expr_unary expr_high_tail",
         "-": "expr_high -> expr_unary expr_high_tail",
         "not": "expr_high -> expr_unary expr_high_tail",
         "integer": "expr_high -> expr_unary expr_high_tail",
@@ -680,6 +690,7 @@ tableau_des_symboles_directeur_ll1_ultime = {
         "not": "expr_unary -> not expr_primary",
         "ident": "expr_unary -> expr_primary",
         "(": "expr_unary -> expr_primary",
+        "[": "expr_unary -> expr_primary",
         "integer": "expr_unary -> expr_primary",
         "string": "expr_unary -> expr_primary",
         "True": "expr_unary -> expr_primary",
@@ -689,6 +700,7 @@ tableau_des_symboles_directeur_ll1_ultime = {
     "expr_primary": { #ok
         "ident": "expr_primary -> expr_primary_extra",
         "(": "expr_primary -> ( argument )",
+        "[": "expr_primary -> [ argument ]",
         "integer": "expr_primary -> const",
         "string": "expr_primary -> const",
         "True": "expr_primary -> const",
@@ -802,7 +814,7 @@ grammar = {
         "ident": "stmt -> simple_stmt NEWLINE",
         "return": "stmt -> simple_stmt NEWLINE",
         "print": "stmt -> simple_stmt NEWLINE",
-        "if": "stmt -> if expr_init : suite else",
+        "if": "stmt -> if expr_init : suite Else",
         "for": "stmt -> for expr_init in expr_init : suite",
     },
     "Else": {
