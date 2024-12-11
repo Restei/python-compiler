@@ -127,7 +127,6 @@ class LL1Parser:
                 self.detecter_erreurs(e)
             return node
     
-    
     def stmtetoile(self):
         """
         Règle : stmtetoile → <stmt> <stmtetoile> | ε
