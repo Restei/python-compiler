@@ -1013,7 +1013,8 @@ def parse_with_tokens(ll1_table, tokens, start_symbol):
     
     # Pointeur sur le token courant
     index = 0
-    
+    file = Node("file")
+    node = file
     while stack:
         top = stack[0]  # Extraire le sommet de la pile
         stack = stack[1:]
@@ -1025,6 +1026,7 @@ def parse_with_tokens(ll1_table, tokens, start_symbol):
         elif current_token.type.value == "EOF":
             # La pile contient $ et le token courant est également EOF
             if current_token.type == TokenType.EOF:
+                node.dessine()
                 print("Analyse terminée avec succès.")
                 return True
             else:
@@ -1035,12 +1037,16 @@ def parse_with_tokens(ll1_table, tokens, start_symbol):
             token_type = current_token.analyse_syntaxique()
             if token_type in ll1_table[top]:
                 production = ll1_table[top][token_type]
-                print(f"Appliquer règle: {production}")
+
+                #print(f"Appliquer règle: {production}")
                 # Ajouter les symboles de la règle dans la pile (dans l'ordre inverse)
                 symbols = production.split("->")[1].strip().split()
                 if symbols != ["ε"]:
+                    node =node.ajouter_fils_arbre(production)
                     #print("symbole:",symbols)# Ignorer ε (epsilon)
                     stack = symbols + stack
+                else:
+                    node = node.next()
                     
             else:
                 print(f"Erreur: Aucun règle pour {top} avec {token_type}.")

@@ -1,7 +1,7 @@
 from analyse_lexicale.fonction_lexicale import Lexeur,lire_fichier,affichage_fichier
 from analyse_lexicale.token import TokenType, BaseToken
 from analyse_syntaxique.table_des_symboles import *
-from analyse_syntaxique.fonction_syntaxique_dictionnaire import *
+from analyse_syntaxique.fonction_syntaxique import *
 
 
 path = "mini_python/"
