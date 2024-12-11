@@ -48,5 +48,34 @@ class Node:
         if self.succ != other.succ:
             return False
         return True
+    def number(self):
+        """
+        Retourne l'identifiant unique du nœud.
 
-    
+        :return: Identifiant unique du nœud.
+        """
+        return self.id
+
+    def getname(self):
+        """
+        Retourne le nom du nœud.
+
+        :return: Nom du nœud.
+        """
+        return self.name
+
+    def ajouter_fils_noeud(self, node):
+        """
+        Ajoute un fils à ce nœud.
+
+        :param node: Nœud fils à ajouter.
+        """
+        self.succ.append(node)
+
+    def ajouter_fils(self, name):
+        """
+        Crée un nouveau nœud avec un nom donné et l'ajoute comme fils.
+
+        :param name: Nom du nœud fils à créer.
+        """
+        self.succ.append(Node(name))
