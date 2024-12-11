@@ -178,3 +178,14 @@ def dessine(self):
 #
 #R[0].ajouter_fils("R5")
 #R.dessine()
+
+# Exemple d'utilisation de la classe Node
+if __name__ == "__main__":
+    root = Node("Root")
+    child1 = Node("Child1")
+    child2 = Node("Child2")
+
+    root.ajouter_fils_noeud(child1)
+    root.ajouter_fils_noeud(child2)
+
+    root.dessine()
