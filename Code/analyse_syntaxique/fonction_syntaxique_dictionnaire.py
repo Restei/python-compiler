@@ -1,6 +1,5 @@
 from analyse_lexicale.token import *
 from analyse_syntaxique.arbre import *
-
 ll1_table = {
     "file": {
         "NEWLINE": "file -> NEWLINE def_etoile stmt stmt_etoile EOF",
@@ -934,7 +933,7 @@ grammar = {
     },
 }
 
-def parse_with_tokens(ll1_table,LL2_entries, tokens, start_symbol,initStack = None, startindex = 0):
+def parse_with_tokens(ll1_table, tokens, start_symbol,LL2_entries=[],initStack = None, startindex = 0):
     """
     Analyse syntaxique adaptée aux classes Token.
     
@@ -949,7 +948,6 @@ def parse_with_tokens(ll1_table,LL2_entries, tokens, start_symbol,initStack = No
     # Ajouter un token spécial EOF pour marquer la fin de la chaîne
     #eof_token = BaseToken(TokenType.EOF, "$", -1, -1)
     #tokens.append(eof_token)
-    print(initStack)
     # Initialiser la pile avec le symbole de départ et EOF
     
     if initStack is None:
@@ -959,9 +957,9 @@ def parse_with_tokens(ll1_table,LL2_entries, tokens, start_symbol,initStack = No
     else:
         stack = initStack
         index = startindex
-        print(f"New stack {startindex}")
+
+    sortie = []
     # Pointeur sur le token courant
-    
     while stack:
         top = stack[0]  # Extraire le sommet de la pile
         stack = stack[1:]
@@ -982,9 +980,10 @@ def parse_with_tokens(ll1_table,LL2_entries, tokens, start_symbol,initStack = No
         elif (top in ll1_table) and (token_type in ll1_table[top]):
             # Trouver la production pour ce non-terminal et ce token courant
             production = ll1_table[top][token_type]
-            print(f"Appliquer règle: {production}")
+            sortie.append(production)
             # Ajouter les symboles de la règle dans la pile (dans l'ordre inverse)
             symbols = production.split("->")[1].strip().split()
+            print(sortie)
             if symbols != ["ε"]:
                 #print("symbole:",symbols)# Ignorer ε (epsilon)
                 stack = symbols + stack
@@ -1019,9 +1018,8 @@ def parse_with_tokens(ll1_table,LL2_entries, tokens, start_symbol,initStack = No
     if index < len(tokens) - 1:
         print(f"Erreur: Tokens restants non analysés {tokens[index:]}")
         return False
-    
     print("Analyse réussie.")
-    return True
+    return sortie
 
 
 

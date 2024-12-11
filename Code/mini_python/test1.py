@@ -22,6 +22,11 @@ def main():
     sum_result = sum_list(numbers)
     print("Sum of list:")
     print(sum_result)
+    if a== b :
+        print (1)
+    else :
+        print(b) 
+        return True
     return 1
 main()
 print(a)

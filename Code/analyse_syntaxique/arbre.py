@@ -3,14 +3,46 @@ from igraph import *
 import igraph as ig
 
 
+
+#########################################################################################################################################################
+#                                                                                                                                                       #
+#        
+#        Création fils fera n (avec .split(' ') et mettra le nom des noeuds plus tard) noeud et les modifiera après                                                                                                                                               #
+#        Modification fils 1 + Frères                                                                                                                                               #
+#                                                                                                                                                        #
+#                                                                                                                                                       #
+#                                                                                                                                                       #
+#                                                                                                                                                       #
+#########################################################################################################################################################
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 unique_id = 0
 
 class Node:
-    def __init__(self,name):
+    def __init__(self,name,father= None):
         global unique_id
         self.id = unique_id 
         self.name = name
         self.succ = []
+        self.brother = None
+        self.father = father
         unique_id+=1
 
     def __repr__(self):
@@ -29,28 +61,56 @@ class Node:
         return len(self.succ)
 
     def __eq__(self,node):
-        if self.name != node.name:
-            return False
-        else:
-            if self.succ != node.succ:
-                return False
+        if self.id==node.id:
             return True
+        return False
 
     def number(self):
         return self.id
 
     def getname(self):
         return self.name
+        
+    def ajouter_fils(self,names):
+        for elem in names:
+            fils = Node(elem,father = self)
+            if len(self.succ)==0:
+                self.succ.append(fils)
+            else:
+                self.succ[-1].brother = fils
+                self.succ.append(fils)
     
-    def ajouter_fils_noeud(self,node):
-        self.succ.append(node) 
+    def is_last(self):
+        if self.brother is None:
+            return True
+        return False
 
-
-    def ajouter_fils(self,node):
-        self.succ.append(Node(node)) 
-
-
-
+    def is_non_terminal(self):
+        return self.name in ["file","def_etoile","stmt_etoile","def","arg","next_arg","suite","simple_stmt","simple_stmt_tail","simple_stmt_tail_tail","argument","next_argument","stmt","else","expr_init","expr_logic","expr_logic_tail","expr_comp","expr_comp_tail","comp_op","expr_low","expr_low_tail","expr_high","expr_high_tail","expr_unary","expr_primary","expr_primary_extra","expr_primary_tail2","expr_primary_tail","const","root" ]
+    
+    def ajouter_fils_arbre(self,regle,terminé=False):
+        if terminé:
+            return self.getroot()
+        production = regle.split(" -> ")
+        production2 = production[1].split()
+        noms = [elem for elem in production2 if not elem in ["NEWLINE","EOF",",","BEGIN","END"]]
+        print(noms)
+        if self.is_non_terminal() :
+            self.ajouter_fils(noms)
+            return self.succ[0]
+        else:
+            print(self)
+            if self.is_last() :
+                    print(self)
+                    return self.father.ajouter_fils_arbre(regle)
+            else:
+                return self.brother.ajouter_fils_arbre(regle)
+            
+    def getroot(self):
+        node = self
+        while not node.father is None:
+            node = self.father
+        return node
     def dessine(self):
         from collections import deque
         
@@ -124,29 +184,16 @@ class Node:
         
         fig.show()
 
+Sortie = ["file -> NEWLINE stmt EOF ","stmt -> simple_stmt NEWLINE","simple_stmt -> ident simple_stmt_tail","simple_stmt_tail -> = expr_init","expr_init -> expr_primary","expr_primary -> const","const -> integer","stmt_etoile -> stmt stmt_etoile","stmt -> simple_stmt NEWLINE","simple_stmt -> ident simple_stmt_tail","simple_stmt_tail ->  = expr_init","expr_init -> expr_logic","expr_logic -> expr_comp ","expr_comp -> expr_low ","expr_low -> expr_high ","expr_high -> expr_unary ","expr_unary -> expr_primary","expr_primary -> const","const -> integer","stmt_etoile -> stmt stmt_etoile","stmt -> simple_stmt NEWLINE","simple_stmt -> ident simple_stmt_tail","simple_stmt_tail ->  = expr_init","expr_init -> expr_logic","expr_logic -> expr_comp expr_logic_tail","expr_comp -> expr_low expr_comp_tail","expr_low -> expr_high expr_low_tail","expr_high -> expr_unary","expr_unary -> expr_primary","expr_primary -> expr_primary_extra","expr_primary_extra -> ident","expr_low_tail -> + expr_high expr_low_tail","expr_high -> expr_unary expr_high_tail","expr_unary -> ident "]
+
+Sortie2 = ['file -> NEWLINE def_etoile stmt stmt_etoile EOF', 'def_etoile -> vide', 'stmt -> simple_stmt NEWLINE', 'simple_stmt -> ident simple_stmt_tail', 'simple_stmt_tail -> simple_stmt_tail_tail = expr_init', 'simple_stmt_tail_tail -> vide', 'expr_init -> expr_logic', 'expr_logic -> expr_comp expr_logic_tail', 'expr_comp -> expr_low expr_comp_tail', 'expr_low -> expr_high expr_low_tail', 'expr_high -> expr_unary expr_high_tail', 'expr_unary -> expr_primary', 'expr_primary -> const', 'const -> integer', 'expr_high_tail -> vide', 'expr_low_tail -> vide', 'expr_comp_tail -> vide', 'expr_logic_tail -> vide', 'stmt_etoile -> stmt stmt_etoile', 'stmt -> simple_stmt NEWLINE', 'simple_stmt -> ident simple_stmt_tail', 'simple_stmt_tail -> simple_stmt_tail_tail = expr_init', 'simple_stmt_tail_tail -> vide', 'expr_init -> expr_logic', 'expr_logic -> expr_comp expr_logic_tail', 'expr_comp -> expr_low expr_comp_tail', 'expr_low -> expr_high expr_low_tail', 'expr_high -> expr_unary expr_high_tail', 'expr_unary -> expr_primary', 'expr_primary -> const', 'const -> integer', 'expr_high_tail -> vide', 'expr_low_tail -> vide', 'expr_comp_tail -> vide', 'expr_logic_tail -> vide', 'stmt_etoile -> stmt stmt_etoile', 'stmt -> simple_stmt NEWLINE', 'simple_stmt -> ident simple_stmt_tail', 'simple_stmt_tail -> simple_stmt_tail_tail = expr_init', 'simple_stmt_tail_tail -> vide', 'expr_init -> expr_logic', 'expr_logic -> expr_comp expr_logic_tail', 'expr_comp -> expr_low expr_comp_tail', 'expr_low -> expr_high expr_low_tail', 'expr_high -> expr_unary expr_high_tail', 'expr_unary -> expr_primary', 'expr_primary -> expr_primary_extra', 'expr_primary_extra -> ident expr_primary_tail', 'expr_primary_tail -> expr_primary_tail2', 'expr_primary_tail2 -> vide', 'expr_high_tail -> vide', 'expr_low_tail -> + expr_high expr_low_tail', 'expr_high -> expr_unary expr_high_tail', 'expr_unary -> expr_primary', 'expr_primary -> expr_primary_extra', 'expr_primary_extra -> ident expr_primary_tail']
         
-        
+if __name__=="__main__":
+    root = Node("root")
+    noeud = root
+    for regle in Sortie:
+        noeud = noeud.ajouter_fils_arbre(regle)
 
-<<<<<<< HEAD
-R = Node("Root")
-R.ajouter_fils("R")
+    #print(noeud.succ)
+    root.dessine()
 
-R.ajouter_fils("RU")
-
-R.ajouter_fils("RUS")
-R[0].ajouter_fils("2")
-
-R[0].ajouter_fils("R5")
-R.dessine()
-=======
-#R = Node("Root")
-#R.ajouter_fils("R")
-#
-#R.ajouter_fils("RU")
-#
-#R.ajouter_fils("RUS")
-#R[0].ajouter_fils("2")
-#
-#R[0].ajouter_fils("R5")
-#R.dessine()
->>>>>>> 9a033866df6514142681068a0207a7a26b792208
