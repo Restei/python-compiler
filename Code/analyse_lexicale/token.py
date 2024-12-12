@@ -14,8 +14,6 @@ class TokenType(Enum):
     STRING = 'STRING'
     UNKNOWN = 'UNKNOWN'
     NEWLINE = 'NEWLINE'
-    ALPHA = 'ALPHA'
-    DIGIT = 'DIGIT'
     
     @classmethod
     def is_binary_operator(cls, token):
@@ -159,3 +157,10 @@ class UnknowCaracters(Exception):
 class IndentException(Exception):
     def __init__(self,ligne):
         super().__init__(f"Line {ligne} : indentation error")
+
+class NumberTooLongException(Exception):
+    def __init__(self, ligne, token):
+        self.ligne = ligne
+        self.token = token
+        
+        super().__init__(f"Le nombre {token} à la ligne {ligne} est trop long.")
