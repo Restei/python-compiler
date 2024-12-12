@@ -5,12 +5,10 @@ from analyse_syntaxique.fonction_syntaxique import *
 
 
 path = "mini_python/"
-fichier = "variable.py"
 
-file = path + fichier
+file = path + "expression.py"
 
 Lex1 = Lexeur(lire_fichier(file))
-
 #print(lire_fichier("mini_python/variable.py"))
 
 Tokens,errors = Lex1.Tokenisation()
