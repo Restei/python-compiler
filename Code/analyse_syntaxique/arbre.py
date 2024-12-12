@@ -122,7 +122,7 @@ class Node:
             node = file.popleft()
             for elem in node:
                 file.append(elem)
-                mermaid = mermaid + f"{node.id}[{node.name}] --> {elem.id}['{elem.name}']\n"
+                mermaid = mermaid + f"{node.id}[{node.name}] --> {elem.id}["+ '"' + "'" +f"{elem.name}"+ "'"+ '"' +"]\n"
         return mermaid
     
     def dessine(self,name = "arbre syntaxique"):
@@ -156,6 +156,7 @@ class Node:
         </body>
         </html>
         """
+        #print(mermaid)
 
         fichier = open(f"./{name}.html",'w+')
         fichier.write(html)

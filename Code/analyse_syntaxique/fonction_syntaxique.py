@@ -580,6 +580,7 @@ tableau_des_symboles_directeur_ll1_ultime = {
     },
     "expr_logic_tail": { #ok
         "or": "expr_logic_tail -> or expr_comp expr_logic_tail",
+        "and": "expr_logic_tail -> and expr_comp expr_logic_tail",
         "NEWLINE": "expr_logic_tail -> ε",
         ":": "expr_logic_tail -> ε",
         "in": "expr_logic_tail -> ε",
@@ -607,6 +608,7 @@ tableau_des_symboles_directeur_ll1_ultime = {
         "==": "expr_comp_tail -> comp_op expr_low",
         "!=": "expr_comp_tail -> comp_op expr_low",
         "or": "expr_comp_tail -> ε",
+        "and": "expr_comp_tail -> ε",
         "NEWLINE": "expr_comp_tail -> ε",
         ":": "expr_comp_tail -> ε",
         "in": "expr_comp_tail -> ε",
@@ -642,7 +644,7 @@ tableau_des_symboles_directeur_ll1_ultime = {
         "in": "expr_low_tail -> ε",
         ",": "expr_low_tail -> ε",
         "]": "expr_low_tail -> ε",
-        "or": "expr_low_tail -> ε",
+        "and": "expr_low_tail -> ε",
         ":": "expr_low_tail -> ε",
         "<": "expr_low_tail -> ε",
         "<=": "expr_low_tail -> ε",
@@ -672,6 +674,7 @@ tableau_des_symboles_directeur_ll1_ultime = {
         "+": "expr_high_tail -> ε",
         "-": "expr_high_tail -> ε",
         "or": "expr_high_tail -> ε",
+        "and": "expr_high_tail -> ε",
         "NEWLINE": "expr_high_tail -> ε",
         ":": "expr_high_tail -> ε",
         "in": "expr_high_tail -> ε",
@@ -718,6 +721,7 @@ tableau_des_symboles_directeur_ll1_ultime = {
         "+": "expr_primary_tail -> expr_primary_tail2",
         "-": "expr_primary_tail -> expr_primary_tail2",
         "or": "expr_primary_tail -> expr_primary_tail2",
+        "and": "expr_primary_tail -> expr_primary_tail2",
         "NEWLINE": "expr_primary_tail -> expr_primary_tail2",
         ":": "expr_primary_tail -> expr_primary_tail2",
         "in": "expr_primary_tail -> expr_primary_tail2",
@@ -743,6 +747,7 @@ tableau_des_symboles_directeur_ll1_ultime = {
         "]": "expr_primary_tail2 -> ε",
         "in": "expr_primary_tail2 -> ε",
         "or": "expr_primary_tail2 -> ε",      
+        "and": "expr_primary_tail2 -> ε", 
         "<": "expr_primary_tail2 -> ε",
         "<=": "expr_primary_tail2 -> ε",
         ">": "expr_primary_tail2 -> ε",
@@ -871,6 +876,7 @@ grammar = {
     },
     "expr_logic_tail": {
         "or": "expr_logic_tail -> or expr_comp expr_logic_tail",
+        "and": "expr_logic_tail -> and expr_comp expr_logic_tail",
         "NEWLINE": "expr_logic_tail -> ε",
         ":": "expr_logic_tail -> ε",
         "]": "expr_high_tail -> ε",
@@ -895,6 +901,7 @@ grammar = {
         "==": "expr_comp_tail -> comp_op expr_low",
         "!=": "expr_comp_tail -> comp_op expr_low",
         "or": "expr_comp_tail -> ε",
+        "and": "expr_comp_tail -> ε",
         "NEWLINE": "expr_comp_tail -> ε",
         "]": "expr_high_tail -> ε",
         ":": "expr_high_tail -> ε",
@@ -923,6 +930,7 @@ grammar = {
         "+": "expr_low_tail -> + expr_high expr_low_tail",
         "-": "expr_low_tail -> - expr_high expr_low_tail",
         "or": "expr_low_tail -> ε",
+        "and": "expr_low_tail -> ε",
         "NEWLINE": "expr_low_tail -> ε",
         "]": "expr_high_tail -> ε",
         ":": "expr_high_tail -> ε",
@@ -1049,9 +1057,11 @@ def parse_with_tokens(ll1_table, tokens, start_symbol):
                     
             else:
                 print(f"Erreur: Aucun règle pour {top} avec {token_type}.")
+                print(f"{current_token}")
                 return False
         else:
             print(f"Erreur: Symbole inattendu {top} {current_token.analyse_syntaxique()}.")
+            
             return False
     
     # Si la pile est vide mais il reste des tokens, erreur

@@ -47,6 +47,8 @@ class Lexeur:
             self.position += 1
             self.curseur_position += 1
             self.charactere_actuelle = self.contenu[self.position]
+            if self.charactere_actuelle == '\n':
+                self.ligne_position += 1
 
     def retour(self):
         if self.curseur_position >= 1:
@@ -122,14 +124,6 @@ class Lexeur:
                 if len(self.token)>1:
                     self.errors.append(ZeroException(self.ligne_position,self.token))
                     return UnknownToken(self.token,self.ligne_position,self.position)
-
-
-                #verif de la taille 
-            if len(self.token)>10:
-                self.errors.append(NumberTooLongException(self.ligne_position,self.token))
-                return UnknownToken(self.token,self.ligne_position,self.position)
-
-
             return LiteralToken(self.token, self.ligne_position, self.position)
         
         elif self.string:
@@ -211,7 +205,6 @@ class Lexeur:
   
         
         elif self.charactere_actuelle == '\n':
-            self.ligne_position+=1
             tokens.append(NewlineToken(self.ligne_position,self.position))
             while self.peek()=='\n':
                 self.lire()
@@ -244,5 +237,10 @@ class Lexeur:
         
         # Ajouter le token EOF à la fin
         tokens.append(BaseToken(TokenType.EOF, '', self.ligne_position, self.position))
-
-        return tokens,self.errors
+        tokens2 = [tokens[0]]
+        for elem in tokens[1:]:
+            if elem.type==TokenType.NEWLINE and (tokens2[-1].type==TokenType.NEWLINE or tokens2[-1].type==TokenType.BEGIN or tokens2[-1].type==TokenType.END):
+                continue
+            else:
+                tokens2.append(elem)
+        return tokens2,self.errors
