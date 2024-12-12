@@ -4,7 +4,17 @@ import webbrowser
 unique_id = 0
 
 class Node:
+    """
+    Classe représentant un nœud dans l'arbre syntaxique.
+    """
+
     def __init__(self,name,father= None):
+        """
+        Initialise un nœud avec un nom et un identifiant unique.
+
+        :param name: Nom du nœud (représentant la règle ou le contenu syntaxique).
+        """
+
         global unique_id
         self.id = unique_id 
         self.name = name
@@ -29,17 +39,38 @@ class Node:
         return len(self.succ)
 
     def __eq__(self,node):
+        """
+        Compare deux nœuds pour déterminer s'ils sont égaux.
+
+        :param other: Autre nœud à comparer.
+        :return: True si les nœuds ont le même nom et les mêmes fils.
+        """
         if self.id==node.id:
             return True
         return False
 
     def number(self):
+        """
+        Retourne l'identifiant unique du nœud.
+
+        :return: Identifiant unique du nœud.
+        """
         return self.id
 
     def getname(self):
+        """
+        Retourne le nom du nœud.
+
+        :return: Nom du nœud.
+        """
         return self.name
         
     def ajouter_fils(self,names):
+        """
+        Crée un nouveau nœud avec un nom donné et l'ajoute comme fils.
+
+        :param name: Nom du nœud fils à créer.
+        """
         for elem in names:
             fils = Node(elem,father = self)
             if len(self.succ)==0:
@@ -95,6 +126,12 @@ class Node:
         return mermaid
     
     def dessine(self,name = "arbre syntaxique"):
+        """
+        Dessine l'arbre syntaxique en utilisant mermaid.
+
+        Cette méthode crée une page html contenant l'arbre syntaxique.
+        """
+
         root = self.getroot()
         mermaid = root.to_mermaid()
         html = """
@@ -125,14 +162,16 @@ class Node:
         fichier.close()
 
         webbrowser.open(f"./{name}.html")
+       
+# Exemple d'utilisation de la classe Node
+if __name__ == "__main__":
+    root = Node("Root")
+    child1 = Node("Child1")
+    child2 = Node("Child2")
 
+    root.ajouter_fils_noeud(child1)
+    root.ajouter_fils_noeud(child2)
 
-Sortie = ["file -> NEWLINE stmt EOF ","stmt -> simple_stmt NEWLINE","simple_stmt -> ident simple_stmt_tail","simple_stmt_tail -> = expr_init","expr_init -> expr_primary","expr_primary -> const","const -> integer","stmt_etoile -> stmt stmt_etoile","stmt -> simple_stmt NEWLINE","simple_stmt -> ident simple_stmt_tail","simple_stmt_tail ->  = expr_init","expr_init -> expr_logic","expr_logic -> expr_comp ","expr_comp -> expr_low ","expr_low -> expr_high ","expr_high -> expr_unary ","expr_unary -> expr_primary","expr_primary -> const","const -> integer","stmt_etoile -> stmt stmt_etoile","stmt -> simple_stmt NEWLINE","simple_stmt -> ident simple_stmt_tail","simple_stmt_tail ->  = expr_init","expr_init -> expr_logic","expr_logic -> expr_comp expr_logic_tail","expr_comp -> expr_low expr_comp_tail","expr_low -> expr_high expr_low_tail","expr_high -> expr_unary","expr_unary -> expr_primary","expr_primary -> expr_primary_extra","expr_primary_extra -> ident","expr_low_tail -> + expr_high expr_low_tail","expr_high -> expr_unary expr_high_tail","expr_unary -> ident "]
+    root.dessine()
 
-Sortie2 = ['file -> NEWLINE def_etoile stmt stmt_etoile EOF', 'def_etoile -> vide', 'stmt -> simple_stmt NEWLINE', 'simple_stmt -> ident simple_stmt_tail', 'simple_stmt_tail -> simple_stmt_tail_tail = expr_init', 'simple_stmt_tail_tail -> vide', 'expr_init -> expr_logic', 'expr_logic -> expr_comp expr_logic_tail', 'expr_comp -> expr_low expr_comp_tail', 'expr_low -> expr_high expr_low_tail', 'expr_high -> expr_unary expr_high_tail', 'expr_unary -> expr_primary', 'expr_primary -> const', 'const -> integer', 'expr_high_tail -> vide', 'expr_low_tail -> vide', 'expr_comp_tail -> vide', 'expr_logic_tail -> vide', 'stmt_etoile -> stmt stmt_etoile', 'stmt -> simple_stmt NEWLINE', 'simple_stmt -> ident simple_stmt_tail', 'simple_stmt_tail -> simple_stmt_tail_tail = expr_init', 'simple_stmt_tail_tail -> vide', 'expr_init -> expr_logic', 'expr_logic -> expr_comp expr_logic_tail', 'expr_comp -> expr_low expr_comp_tail', 'expr_low -> expr_high expr_low_tail', 'expr_high -> expr_unary expr_high_tail', 'expr_unary -> expr_primary', 'expr_primary -> const', 'const -> integer', 'expr_high_tail -> vide', 'expr_low_tail -> vide', 'expr_comp_tail -> vide', 'expr_logic_tail -> vide', 'stmt_etoile -> stmt stmt_etoile', 'stmt -> simple_stmt NEWLINE', 'simple_stmt -> ident simple_stmt_tail', 'simple_stmt_tail -> simple_stmt_tail_tail = expr_init', 'simple_stmt_tail_tail -> vide', 'expr_init -> expr_logic', 'expr_logic -> expr_comp expr_logic_tail', 'expr_comp -> expr_low expr_comp_tail', 'expr_low -> expr_high expr_low_tail', 'expr_high -> expr_unary expr_high_tail', 'expr_unary -> expr_primary', 'expr_primary -> expr_primary_extra', 'expr_primary_extra -> ident expr_primary_tail', 'expr_primary_tail -> expr_primary_tail2', 'expr_primary_tail2 -> vide', 'expr_high_tail -> vide', 'expr_low_tail -> + expr_high expr_low_tail', 'expr_high -> expr_unary expr_high_tail', 'expr_unary -> expr_primary', 'expr_primary -> expr_primary_extra', 'expr_primary_extra -> ident expr_primary_tail']
-        
-if __name__=="__main__":
-    root = Node("root")
-    print(root.id)
-    #print(noeud.succ)
 
