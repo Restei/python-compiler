@@ -9,6 +9,7 @@ class LL1Parser:
     Transforme une liste de tokens en une structure syntaxique, tout en vérifiant
     que le code respecte la grammaire définie.
     """
+    
 
     def __init__(self, source_code):
         """
