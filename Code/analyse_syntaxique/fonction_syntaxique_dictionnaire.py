@@ -666,7 +666,7 @@ tableau_des_symboles_directeur_ll1_ultime = {
         "False": "expr_high -> expr_unary expr_high_tail",
         "None": "expr_high -> expr_unary expr_high_tail"
     },
-    "expr_high_tail": { #ok
+    "expr_high_tail": { #ok1
         "*": "expr_high_tail -> * expr_unary expr_high_tail",
         "/": "expr_high_tail -> / expr_unary expr_high_tail",
         "//": "expr_high_tail -> // expr_unary expr_high_tail",
@@ -688,7 +688,7 @@ tableau_des_symboles_directeur_ll1_ultime = {
         "!=": "expr_high_tail -> ε",
         ")": "expr_high_tail -> ε"
     },
-    "expr_unary": { #ok
+    "expr_unary": { #ok1
         "-": "expr_unary -> - expr_primary",
         "not": "expr_unary -> not expr_primary",
         "ident": "expr_unary -> expr_primary",
@@ -700,7 +700,7 @@ tableau_des_symboles_directeur_ll1_ultime = {
         "False": "expr_unary -> expr_primary",
         "None": "expr_unary -> expr_primary"
     },
-    "expr_primary": { #ok
+    "expr_primary": { #ok1
         "ident": "expr_primary -> expr_primary_extra",
         "(": "expr_primary -> ( argument )",
         "[": "expr_primary -> [ argument ]",
@@ -710,7 +710,7 @@ tableau_des_symboles_directeur_ll1_ultime = {
         "False": "expr_primary -> const",
         "None": "expr_primary -> const"
     },
-    "expr_primary_extra": { #ok
+    "expr_primary_extra": { #ok1
         "ident": "expr_primary_extra -> ident expr_primary_tail"
     },
     "expr_primary_tail": { #ok
@@ -721,6 +721,7 @@ tableau_des_symboles_directeur_ll1_ultime = {
         "+": "expr_primary_tail -> expr_primary_tail2",
         "-": "expr_primary_tail -> expr_primary_tail2",
         "or": "expr_primary_tail -> expr_primary_tail2",
+        "and": "expr_primary_tail -> expr_primary_tail2",
         "NEWLINE": "expr_primary_tail -> expr_primary_tail2",
         ":": "expr_primary_tail -> expr_primary_tail2",
         "in": "expr_primary_tail -> expr_primary_tail2",
@@ -737,7 +738,7 @@ tableau_des_symboles_directeur_ll1_ultime = {
         ")": "expr_primary_tail -> expr_primary_tail2"
     },
     
-    "expr_primary_tail2": { #ok
+    "expr_primary_tail2": { #ok1
         "NEWLINE": "expr_primary_tail2 -> ε",
         ")": "expr_primary_tail2 -> ε",
         ":": "expr_primary_tail2 -> ε",
@@ -746,6 +747,7 @@ tableau_des_symboles_directeur_ll1_ultime = {
         "]": "expr_primary_tail2 -> ε",
         "in": "expr_primary_tail2 -> ε",
         "or": "expr_primary_tail2 -> ε",      
+        "and": "expr_primary_tail2 -> ε",  
         "<": "expr_primary_tail2 -> ε",
         "<=": "expr_primary_tail2 -> ε",
         ">": "expr_primary_tail2 -> ε",
