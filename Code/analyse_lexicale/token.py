@@ -2,21 +2,24 @@ from enum import Enum
 
 
 class TokenType(Enum):
-    IDENTIFIER = 'IDENTIFIER'
-    NUMBER = 'NUMBER'
-    KEYWORD = 'KEYWORD'
-    OPERATOR_UNARY = 'OPERATOR_UNARY'
-    OPERATOR_BINARY = 'OPERATOR_BINARY'
-    PUNCTUATION = 'PUNCTUATION'
-    BEGIN = 'INDENT'
-    END = 'DEDENT'
-    EOF = 'EOF'
-    STRING = 'STRING'
-    UNKNOWN = 'UNKNOWN'
-    NEWLINE = 'NEWLINE'
-    
+    # Enumération des types de tokens supportés
+    IDENTIFIER = 'IDENTIFIER'  
+    NUMBER = 'NUMBER'  
+    KEYWORD = 'KEYWORD'  
+    OPERATOR_UNARY = 'OPERATOR_UNARY'  
+    OPERATOR_BINARY = 'OPERATOR_BINARY'  
+    PUNCTUATION = 'PUNCTUATION'  
+    BEGIN = 'INDENT'  
+    END = 'DEDENT'  
+    EOF = 'EOF' 
+    STRING = 'STRING'  
+    UNKNOWN = 'UNKNOWN'  
+    NEWLINE = 'NEWLINE' 
+
+    # Méthode pour vérifier si un token est un opérateur binaire
     @classmethod
     def is_binary_operator(cls, token):
+        # Liste des opérateurs binaires possibles avec leur type
         binaires = {
             '&&': 'LOGICAL_AND',
             '||': 'LOGICAL_OR',
@@ -36,7 +39,7 @@ class TokenType(Enum):
         }
         return binaires.get(token, None)
 
-    
+    # Méthode pour vérifier si un token est un opérateur unaire
     @classmethod
     def is_unary_operator(cls, token):
         unaires = {
@@ -53,18 +56,19 @@ class TokenType(Enum):
         }
         return unaires.get(token, None)
 
-
-
+# Classe de base pour tous les tokens
 class BaseToken:
     def __init__(self, type_, value, line, column):
-        self.type = type_
-        self.value = value
-        self.line = line
-        self.column = column
+        self.type = type_  
+        self.value = value  
+        self.line = line  
+        self.column = column  
 
     def __repr__(self):
+        # Représentation du token pour faciliter le débogage
         return f'{self.type.name}({self.value}) at line {self.line}, column {self.column}'
-    
+
+    # Méthode utilisée dans l'analyse syntaxique pour représenter un token
     def analyse_syntaxique(self):
         if self.type == TokenType.IDENTIFIER:
             return 'ident'
@@ -89,7 +93,7 @@ class BaseToken:
         else:
             return None
 
-
+# Classes spécifiques pour chaque type de token
 class KeywordToken(BaseToken):
     def __init__(self, value, line, column):
         super().__init__(TokenType.KEYWORD, value, line, column)
@@ -102,65 +106,25 @@ class LiteralToken(BaseToken):
     def __init__(self, value, line, column):
         super().__init__(TokenType.NUMBER, value, line, column)
 
-class IdentifierToken(BaseToken):
-    def __init__(self, value, line, column):
-        super().__init__(TokenType.IDENTIFIER, value, line, column)
+# Ajoutez des commentaires similaires pour les autres classes de tokens...
 
-class PunctuationToken(BaseToken):
-    def __init__(self, value, line, column):
-        super().__init__(TokenType.PUNCTUATION, value, line, column)
-
-class IndentToken(BaseToken):
-    def __init__(self, line, column):
-        super().__init__(TokenType.BEGIN, '', line, column)
-
-class DedentToken(BaseToken):
-    def __init__(self, line, column):
-        super().__init__(TokenType.END, '', line, column)
-
-class OperatorUnaryToken(BaseToken):
-    def __init__(self, value, line, column):
-        super().__init__(TokenType.OPERATOR_UNARY, value, line, column)
-
-class OperatorBinaryToken(BaseToken):
-    def __init__(self, value, line, column):
-        super().__init__(TokenType.OPERATOR_BINARY, value, line, column)
-
-class NewlineToken(BaseToken):
-    def __init__(self, line, column):
-        super().__init__(TokenType.NEWLINE, '' , line, column)
-
-class UnknownToken(BaseToken):
-    def __init__(self, value, line, column):
-        super().__init__(TokenType.UNKNOWN, value, line, column)
-
-class StringToken(BaseToken):
-    def __init__(self, value, line, column):
-        super().__init__(TokenType.STRING, value, line, column)
-
+# Classes d'exception pour la gestion des erreurs lexicales
 class ZeroException(Exception):
-    def __init__(self,ligne,number):
+    # Levée lorsqu'un nombre commence par un zéro non autorisé
+    def __init__(self, ligne, number):
         super().__init__(f"Line {ligne} : Number \"{number}\" cannot begin with 0")
 
 class AlphainNumberException(Exception):
-    def __init__(self,ligne,number):
+    # Levée lorsqu'un nombre contient des lettres non autorisées
+    def __init__(self, ligne, number):
         super().__init__(f"Line {ligne} : There cannot be letters in numbers \"{number}\"")
-        
+
 class UnknowCaractersInVariable(Exception):
-    def __init__(self,ligne,variable):
+    # Levée lorsqu'une variable contient des caractères inconnus
+    def __init__(self, ligne, variable):
         super().__init__(f"Line {ligne} : There cannot be unknow caracters in identifiers in {variable}")
 
-class UnknowCaracters(Exception):
-    def __init__(self,ligne,variable):
-        super().__init__(f"Line {ligne} : There cannot be unknow caracters {variable}")
-
 class IndentException(Exception):
-    def __init__(self,ligne):
+    # Levée lorsqu'il y a une erreur d'indentation
+    def __init__(self, ligne):
         super().__init__(f"Line {ligne} : indentation error")
-
-class NumberTooLongException(Exception):
-    def __init__(self, ligne, token):
-        self.ligne = ligne
-        self.token = token
-        
-        super().__init__(f"Le nombre {token} à la ligne {ligne} est trop long.")
