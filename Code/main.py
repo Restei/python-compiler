@@ -4,15 +4,25 @@ from analyse_syntaxique.table_des_symboles import *
 from analyse_syntaxique.fonction_syntaxique import *
 
 
-path = "mini_python/"
 
-file = path + "test1.py"
+contenu = lire_fichier("mini_python/expression.py")
 
-Lex1 = Lexeur(lire_fichier(file))
+# Créer un objet Lexeur
+lexeur = Lexeur(contenu)
 
+# Effectuer la tokenisation
+tokens, erreurs = lexeur.Tokenisation()
 
-Tokens,errors = Lex1.Tokenisation()
+# Affichage des tokens extraits
+print("Tokens extraits :")
+for token in tokens:
+    print(token)
 
-
+# Affichage des erreurs rencontrées
+if erreurs:
+    print("\nErreurs rencontrées :")
+    for erreur in erreurs:
+        print(erreur)
+# Effectuer le parsing avec les tokens extraits
 parse_with_tokens(tableau_des_symboles_directeur_ll1_ultime,Tokens,"file")
 
