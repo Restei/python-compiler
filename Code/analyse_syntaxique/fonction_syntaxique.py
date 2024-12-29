@@ -580,6 +580,7 @@ tableau_des_symboles_directeur_ll1_ultime = {
     },
     "expr_logic_tail": { #ok
         "or": "expr_logic_tail -> or expr_comp expr_logic_tail",
+        "and": "expr_logic_tail -> and expr_comp expr_logic_tail",
         "NEWLINE": "expr_logic_tail -> ε",
         ":": "expr_logic_tail -> ε",
         "in": "expr_logic_tail -> ε",
@@ -607,6 +608,7 @@ tableau_des_symboles_directeur_ll1_ultime = {
         "==": "expr_comp_tail -> comp_op expr_low",
         "!=": "expr_comp_tail -> comp_op expr_low",
         "or": "expr_comp_tail -> ε",
+        "and": "expr_comp_tail -> ε",
         "NEWLINE": "expr_comp_tail -> ε",
         ":": "expr_comp_tail -> ε",
         "in": "expr_comp_tail -> ε",
@@ -642,7 +644,7 @@ tableau_des_symboles_directeur_ll1_ultime = {
         "in": "expr_low_tail -> ε",
         ",": "expr_low_tail -> ε",
         "]": "expr_low_tail -> ε",
-        "or": "expr_low_tail -> ε",
+        "and": "expr_low_tail -> ε",
         ":": "expr_low_tail -> ε",
         "<": "expr_low_tail -> ε",
         "<=": "expr_low_tail -> ε",
@@ -672,6 +674,7 @@ tableau_des_symboles_directeur_ll1_ultime = {
         "+": "expr_high_tail -> ε",
         "-": "expr_high_tail -> ε",
         "or": "expr_high_tail -> ε",
+        "and": "expr_high_tail -> ε",
         "NEWLINE": "expr_high_tail -> ε",
         ":": "expr_high_tail -> ε",
         "in": "expr_high_tail -> ε",
@@ -718,6 +721,7 @@ tableau_des_symboles_directeur_ll1_ultime = {
         "+": "expr_primary_tail -> expr_primary_tail2",
         "-": "expr_primary_tail -> expr_primary_tail2",
         "or": "expr_primary_tail -> expr_primary_tail2",
+        "and": "expr_primary_tail -> expr_primary_tail2",
         "NEWLINE": "expr_primary_tail -> expr_primary_tail2",
         ":": "expr_primary_tail -> expr_primary_tail2",
         "in": "expr_primary_tail -> expr_primary_tail2",
@@ -743,6 +747,7 @@ tableau_des_symboles_directeur_ll1_ultime = {
         "]": "expr_primary_tail2 -> ε",
         "in": "expr_primary_tail2 -> ε",
         "or": "expr_primary_tail2 -> ε",      
+        "and": "expr_primary_tail2 -> ε", 
         "<": "expr_primary_tail2 -> ε",
         "<=": "expr_primary_tail2 -> ε",
         ">": "expr_primary_tail2 -> ε",
@@ -871,6 +876,7 @@ grammar = {
     },
     "expr_logic_tail": {
         "or": "expr_logic_tail -> or expr_comp expr_logic_tail",
+        "and": "expr_logic_tail -> and expr_comp expr_logic_tail",
         "NEWLINE": "expr_logic_tail -> ε",
         ":": "expr_logic_tail -> ε",
         "]": "expr_high_tail -> ε",
@@ -895,6 +901,7 @@ grammar = {
         "==": "expr_comp_tail -> comp_op expr_low",
         "!=": "expr_comp_tail -> comp_op expr_low",
         "or": "expr_comp_tail -> ε",
+        "and": "expr_comp_tail -> ε",
         "NEWLINE": "expr_comp_tail -> ε",
         "]": "expr_high_tail -> ε",
         ":": "expr_high_tail -> ε",
@@ -923,6 +930,7 @@ grammar = {
         "+": "expr_low_tail -> + expr_high expr_low_tail",
         "-": "expr_low_tail -> - expr_high expr_low_tail",
         "or": "expr_low_tail -> ε",
+        "and": "expr_low_tail -> ε",
         "NEWLINE": "expr_low_tail -> ε",
         "]": "expr_high_tail -> ε",
         ":": "expr_high_tail -> ε",
@@ -991,7 +999,6 @@ grammar = {
     },
 }
 
-
 def parse_with_tokens(ll1_table, tokens, start_symbol):
     """
     Analyse syntaxique adaptée aux classes Token.
@@ -1010,7 +1017,10 @@ def parse_with_tokens(ll1_table, tokens, start_symbol):
     
     # Initialiser la pile avec le symbole de départ et EOF
     stack = [start_symbol]
-    
+    ident_list =[]
+    for elem in tokens:
+        if elem.type == TokenType.IDENTIFIER:
+            ident_list.append(elem.value)
     # Pointeur sur le token courant
     index = 0
     file = Node("file")
@@ -1026,7 +1036,9 @@ def parse_with_tokens(ll1_table, tokens, start_symbol):
         elif current_token.type.value == "EOF":
             # La pile contient $ et le token courant est également EOF
             if current_token.type == TokenType.EOF:
-                node.dessine()
+                #file.dessine()
+                file.replace_identifier(ident_list)
+                file.AST()
                 print("Analyse terminée avec succès.")
                 return True
             else:
@@ -1037,22 +1049,23 @@ def parse_with_tokens(ll1_table, tokens, start_symbol):
             token_type = current_token.analyse_syntaxique()
             if token_type in ll1_table[top]:
                 production = ll1_table[top][token_type]
-
-                #print(f"Appliquer règle: {production}")
+                if token_type in ['integer']:
+                    node =node.ajouter_fils_arbre(production,current_token.value)
+                else:
+                    node =node.ajouter_fils_arbre(production)
                 # Ajouter les symboles de la règle dans la pile (dans l'ordre inverse)
                 symbols = production.split("->")[1].strip().split()
                 if symbols != ["ε"]:
-                    node =node.ajouter_fils_arbre(production)
                     #print("symbole:",symbols)# Ignorer ε (epsilon)
                     stack = symbols + stack
-                else:
-                    node = node.next()
-                    
+
             else:
                 print(f"Erreur: Aucun règle pour {top} avec {token_type}.")
+                print(f"{current_token}")
                 return False
         else:
             print(f"Erreur: Symbole inattendu {top} {current_token.analyse_syntaxique()}.")
+            
             return False
     
     # Si la pile est vide mais il reste des tokens, erreur
