@@ -5,7 +5,7 @@ from analyse_syntaxique.fonction_syntaxique import *
 
 
 
-contenu = lire_fichier("mini_python/expression.py")
+contenu = lire_fichier("mini_python/test1.py")
 
 # Créer un objet Lexeur
 lexeur = Lexeur(contenu)
@@ -24,5 +24,5 @@ if erreurs:
     for erreur in erreurs:
         print(erreur)
 # Effectuer le parsing avec les tokens extraits
-parse_with_tokens(tableau_des_symboles_directeur_ll1_ultime,Tokens,"file")
+parse_with_tokens(tableau_des_symboles_directeur_ll1_ultime,tokens,"file")
 

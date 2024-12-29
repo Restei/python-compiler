@@ -17,7 +17,7 @@ class TestParser(unittest.TestCase):
         """
         Tester un cas simple où la chaîne est correctement analysée.
         """
-        path = "mini_python/"
+        path = "mini_python"
         file = path + "expression.py"
         
         # Créer le lexer avec le fichier à analyser
@@ -40,7 +40,7 @@ class TestParser(unittest.TestCase):
         """
         Tester un cas où la chaîne ne peut pas être analysée correctement.
         """
-        path = "mini_python/"
+        path = "mini_python/err_synt/"
         file = path + "invalid_syntax.py"
         
         
@@ -63,7 +63,7 @@ class TestParser(unittest.TestCase):
         """
         Tester un cas avec un token inattendu.
         """
-        path = "mini_python/"
+        path = "mini_python/err_synt/"
         file = path + "unexpected_token.py"
         
         
