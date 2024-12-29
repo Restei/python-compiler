@@ -5,7 +5,7 @@ from analyse_syntaxique.fonction_syntaxique import *
 
 
 
-contenu = lire_fichier("mini_python/test1.py")
+contenu = lire_fichier("mini_python/erreurs_lex.py")
 
 # Créer un objet Lexeur
 lexeur = Lexeur(contenu)

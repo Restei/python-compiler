@@ -205,6 +205,10 @@ class Lexeur:
                 if self.token_nombre and not self.chiffre():
                     self.number_error = True  # Erreur de nombre si le caractère n'est pas un chiffre
                 self.token += self.charactere_actuelle
+                # Vérification de la longueur du nombre (par exemple, 50 caractères maximum)
+                if self.token_nombre and len(self.token) > 50:
+                    self.errors.append(NumberTooLongException(self.ligne_position, self.token))
+                    return None  # Vous pouvez choisir de ne pas ajouter le token à la liste ici
             else:
                 # Ajouter des erreurs si nécessaire
                 if self.variable_error:
