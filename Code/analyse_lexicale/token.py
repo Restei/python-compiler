@@ -83,7 +83,9 @@ class BaseToken:
         elif self.type == TokenType.BEGIN:
             return 'BEGIN'
         elif self.type == TokenType.END:
-            return 'END'
+            return 'END' 
+        elif self.type== TokenType.EOF:
+            return 'EOF'
         elif self.type == TokenType.UNKNOWN:
             return 'unknown'
         else:
