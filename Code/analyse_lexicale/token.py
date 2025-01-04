@@ -159,3 +159,7 @@ class UnknowCaracters(Exception):
 class IndentException(Exception):
     def __init__(self,ligne):
         super().__init__(f"Line {ligne} : indentation error")
+
+class StringMissing(Exception):
+    def __init__(self,ligne,variable):
+        super().__init__(f"Line {ligne} : an \" is missing  in {variable}")
