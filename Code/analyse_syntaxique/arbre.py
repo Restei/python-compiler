@@ -132,6 +132,15 @@ class Node:
             for elem in self.succ:
                 elem.suppr_vide()
 
+    def replace_identifier(self,liste):
+        pile = [self]
+        while len(pile)>0 and len(liste)>0:
+            top = pile[0]
+            pile = top.succ+pile[1:]
+            if top.name=='ident':
+                top.name = liste[0]
+                liste = liste[1:]
+
     def leaf_to_node(self):
         succ = []
         count = 0
@@ -150,7 +159,35 @@ class Node:
         for elem in self:
             elem.leaf_to_node()
 
+    def binary_replace(self):
+        binary = ["expr_high","expr_low","expr_comp"]
 
+        if self.name=="expr_logic":
+            self.name = self[1].name
+            self.succ = self.succ[:1] +self[1].succ
+
+        if self.name in binary and self.succ!=[]:
+            if len(self.succ)==2:
+                nom = self.succ[1].name
+                self.succ[1].name=self.name
+                self.name = nom
+            else:
+                self.name = self.succ[0].name
+                self.succ = []
+
+        for elem in self:
+            elem.binary_replace()
+
+    def replace_not(self):
+        binary = ["expr_high","expr_low","expr_comp"]
+        for elem in self.succ:
+            elem.replace_not()
+        if self.name in binary:
+            for i in range(len(self)):
+                if self[i].name=='not':
+                    self.succ[i].name = self.name
+                    self.name = 'not'
+                    break
     def replace(self):
 
         for elem in self:
@@ -169,6 +206,7 @@ class Node:
         self.name = "root"
         self.replace()
         self.leaf_to_node()
+        self.binary_replace()
         self.suppr_vide()
         self.dessine(name)
 
@@ -188,7 +226,15 @@ class Node:
             node = file.popleft()
             for elem in node:
                 file.append(elem)
-                mermaid = mermaid + f"{node.id}[{node.name}] --> {elem.id}["+ '"' + "'" +f"{elem.name}"+ "'"+ '"' +"]\n"
+                if node.name[0] in '+-*/%>':
+                    ajout = f"{node.id}[\"\\{node.name}\"] --> "
+                else: 
+                    ajout = f"{node.id}[{node.name}] --> "
+                if elem.name[0] in '([])':
+                    ajout = ajout + f"{elem.id}[\"{elem.name}\"]\n"
+                else:
+                    ajout = ajout + f"{elem.id}[\" {elem.name}\"]\n"
+                mermaid = mermaid+ajout
         return mermaid
     
     def dessine(self,name = "arbre syntaxique"):
@@ -200,6 +246,7 @@ class Node:
 
         root = self.getroot()
         mermaid = root.to_mermaid()
+#        print(mermaid)
         html = """
         <!DOCTYPE html>
         <html lang="fr">

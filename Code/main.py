@@ -6,7 +6,7 @@ from analyse_syntaxique.fonction_syntaxique import *
 
 path = "mini_python/"
 
-file = path + "expression.py"
+file = path + "complique.py"
 
 Lex1 = Lexeur(lire_fichier(file))
 #print(lire_fichier("mini_python/variable.py"))
