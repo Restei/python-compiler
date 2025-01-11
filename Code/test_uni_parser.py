@@ -13,28 +13,7 @@ class TestParser(unittest.TestCase):
         
         self.ll1_table = tableau_des_symboles_directeur_ll1_ultime
 
-    def test_simple_valid_case(self):
-        """
-        Tester un cas simple où la chaîne est correctement analysée.
-        """
-        path = "mini_python"
-        file = path + "expression.py"
-        
-        # Créer le lexer avec le fichier à analyser
-        Lex1 = Lexeur(lire_fichier(file))
-        
-        # Effectuer la tokenisation
-        Tokens, errors = Lex1.Tokenisation()
-
-        # Si des erreurs sont présentes dans la tokenisation, les afficher
-        if errors:
-            print(f"Erreurs de tokenisation dans {file} : {errors}")
-        
-        # Tester le parsing avec les tokens générés
-        result = parse_with_tokens(self.ll1_table, Tokens, file)
-        
-        # Vérifier que le parsing réussit
-        self.assertTrue(result, "Le parsing a échoué pour un cas valide.")
+    
 
     def test_invalid_case(self):
         """

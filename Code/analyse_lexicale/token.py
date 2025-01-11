@@ -162,8 +162,8 @@ class NumberTooLongException(Exception):
     def __init__(self, ligne, token):
         self.ligne = ligne
         self.token = token
+        super().__init__(f"Line {ligne} :Le nombre {token} est trop long")
         
-        super().__init__(f"Le nombre {token} à la ligne {ligne} est trop long.")
 class InvalidFloatException(Exception):
     def __init__(self, ligne, token):
         self.ligne = ligne

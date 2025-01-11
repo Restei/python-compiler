@@ -207,8 +207,12 @@ class Lexeur:
                 self.token += self.charactere_actuelle
                 # Vérification de la longueur du nombre (par exemple, 50 caractères maximum)
                 if self.token_nombre and len(self.token) > 50:
-                    self.errors.append(NumberTooLongException(self.ligne_position, self.token))
-                    return None  # Vous pouvez choisir de ne pas ajouter le token à la liste ici
+                    # Vérifier si l'erreur a déjà été ajoutée pour ce nombre
+                    if not any(isinstance(e, NumberTooLongException) and e.token == self.token for e in self.errors):
+                        self.errors.append(NumberTooLongException(self.ligne_position, self.token))
+                    self.token = None  # Réinitialiser le token pour éviter d'ajouter un nombre trop long
+                    self.token_nombre = False  # Réinitialiser le flag de nombre
+                    return  # Sortir immédiatement pour ne pas ajouter un token trop long
             else:
                 # Ajouter des erreurs si nécessaire
                 if self.variable_error:
