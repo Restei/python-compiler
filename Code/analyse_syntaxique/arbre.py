@@ -182,15 +182,26 @@ class Node:
     
         
     def to_mermaid(self):
+        """
+        Génère une représentation Mermaid améliorée de l'arbre syntaxique.
+        """
         mermaid = "flowchart TD\n"
         file = deque([self])
-        while(len(file)>0):
+        while file:
             node = file.popleft()
+            # Définir le style pour les nœuds terminaux et non terminaux
+            node_style = ":::non_terminal" if node.is_non_terminal() else ":::terminal"
             for elem in node:
                 file.append(elem)
-                mermaid = mermaid + f"{node.id}[{node.name}] --> {elem.id}["+ '"' + "'" +f"{elem.name}"+ "'"+ '"' +"]\n"
+                mermaid += f'{node.id}["{node.name}"]{node_style} --> {elem.id}["{elem.name}"]\n'
+        # Ajouter des définitions de style
+        mermaid += """
+        
+        classDef non_terminal fill:#bbf3ff,stroke:#333,stroke-width:2px,shape:ellipse;
+        """
         return mermaid
-    
+
+        
     def dessine(self,name = "arbre syntaxique"):
         """
         Dessine l'arbre syntaxique en utilisant mermaid.
