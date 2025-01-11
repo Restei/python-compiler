@@ -353,56 +353,88 @@ def parse_with_tokens(ll1_table, tokens, start_symbol):
     
     # Pointeur sur le token courant
     index = 0
-    file = Node("file")
-    node = file
+    file = Node("file")  # Noeud racine de l'AST
+    current_node = file
+
     while stack:
-        top = stack[0]  # Extraire le sommet de la pile
-        stack = stack[1:]
-        current_token = tokens[index]  # Lire le token courant
+        top = stack.pop(0)  # Extraire le sommet de la pile
+        current_token = tokens[index] if index < len(tokens) else None
+
+        # Gestion des erreurs lexicales : Vérifier si le token courant est valide
+        if current_token is None or not hasattr(current_token, "analyse_syntaxique"):
+            errors.append(
+                f"Erreur lexicale : Impossible de détecter le token à l'index {index}. "
+                f"Token invalide ou non reconnu."
+            )
+            break
+
         # Si le sommet est un terminal (valeur littérale)
         if top == current_token.analyse_syntaxique():
-            #print(f"Match terminal: {top}")
+            print(f"Correspondance trouvée : {top}")
+            current_node.ajouter_fils_arbre(top, current_token.value)
             index += 1  # Avancer dans les tokens
+
         elif current_token.type.value == "EOF":
-            # La pile contient $ et le token courant est également EOF
-            if current_token.type == TokenType.EOF:
-                #file.dessine()
-                file.AST()
+            # Vérifier si nous avons terminé l'analyse
+            if not stack:
                 print("Analyse terminée avec succès.")
+                file.AST()
                 return True
             else:
-                print("Erreur: Fin de chaîne attendue mais non trouvée.",current_token.type,top)
-                return False
+                errors.append(
+                    f"Erreur : Fin de fichier atteinte mais la pile contient encore {stack}. "
+                    f"Impossible de compléter l'analyse."
+                )
+                break
+
         elif top in ll1_table:
-            # Trouver la production pour ce non-terminal et ce token courant
+            # Vérifier si une règle correspondante existe
             token_type = current_token.analyse_syntaxique()
             if token_type in ll1_table[top]:
                 production = ll1_table[top][token_type]
-                if token_type in ['ident','integer','string']:
-                    node =node.ajouter_fils_arbre(production,current_token.value)
-                else:
-                    node =node.ajouter_fils_arbre(production)
-                # Ajouter les symboles de la règle dans la pile (dans l'ordre inverse)
+                print(f"Utilisation de la règle: {top} -> {production}")
+                
+                # Ajouter les symboles de la règle dans la pile
                 symbols = production.split("->")[1].strip().split()
-                if symbols != ["ε"]:
-                    #print("symbole:",symbols)# Ignorer ε (epsilon)
+                if symbols != ["ε"]:  # Ignorer epsilon
                     stack = symbols + stack
 
-                    
+                # Ajouter un noeud correspondant à la règle dans l'AST
+                current_node = current_node.ajouter_fils_arbre(top)
             else:
-                print(f"Erreur: Aucun règle pour {top} avec {token_type}.")
-                print(f"{current_token}")
-                return False
-        else:
-            print(f"Erreur: Symbole inattendu '{top}' trouvé à la position ligne {current_token.line}, colonne {current_token.column}.")
+                expected_tokens = list(ll1_table[top].keys())
+                errors.append(
+                    f"Erreur syntaxique : Aucun règle trouvée pour {top} avec le token {token_type}. "
+                    f"Ligne {current_token.line}, colonne {current_token.column}. "
+                    f"Attendu : {expected_tokens}, trouvé : {token_type}."
+                )
+                # Récupération d'erreur
+                index = synchroniser(tokens, index, ["NEWLINE", "EOF"])
+                continue
 
-            
-            return False
-    
-    # Si la pile est vide mais il reste des tokens, erreur
-    if index < len(tokens) - 1:
-        print(f"Erreur: Tokens restants non analysés {tokens[index:]}")
+        else:
+            errors.append(
+                f"Erreur syntaxique : Symbole inattendu '{top}' au sommet de la pile. "
+                f"Ligne {current_token.line}, colonne {current_token.column}."
+            )
+            # Récupération d'erreur
+            index = synchroniser(tokens, index, ["NEWLINE", "EOF"])
+            continue
+
+    # Vérifier si des tokens restent non analysés
+    if index < len(tokens):
+        remaining_tokens = tokens[index:]
+        errors.append(
+            f"Erreur : Tokens non analysés restants : "
+            f"{[token.analyse_syntaxique() for token in remaining_tokens]}"
+        )
+
+    # Afficher toutes les erreurs détectées
+    if errors:
+        print("Analyse terminée avec des erreurs :")
+        for error in errors:
+            print(error)
         return False
-    
+
     print("Analyse réussie.")
     return True
