@@ -386,7 +386,13 @@ def parse_with_tokens(ll1_table, tokens, start_symbol):
             else:
                 print(f"Erreur: Aucun règle pour {top} avec {token_type}.")
                 print(f"{current_token}")
-                return False
+                erreur = top + " -> erreur" 
+                node.ajouter_fils_arbre(erreur)
+                top = stack[0]
+                while current_token.value not in ll1_table[top]:
+                    index+=1
+                    current_token = tokens[index]
+                
         else:
             print(f"Erreur: Symbole inattendu '{top}' trouvé à la position ligne {current_token.line}, colonne {current_token.column}.")
 
