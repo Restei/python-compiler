@@ -446,7 +446,8 @@ def parse_with_tokens(ll1_table, tokens, start_symbol):
                 current_node.ajouter_fils_arbre(erreur)
 
                 # Récupération : Passer au prochain point de synchronisation
-                index = synchroniser(tokens, index,ll1_table[top])
+                if top in ll1_table:
+                    index = synchroniser(tokens, index,ll1_table[top])
                 continue
 
         # Vérification 4 : Symbole inattendu au sommet de la pile
