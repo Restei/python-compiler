@@ -231,14 +231,17 @@ class Node:
             node_style = ":::non_terminal" if node.is_non_terminal() else ":::terminal"
             for elem in node:
                 file.append(elem)
+                elem_style = ":::error" if elem.name == "erreur" else ""
                 if node.name[0] in '+-*/%>':
-                    mermaid += f'{node.id}["\\{node.name}"]{node_style} --> {elem.id}["{elem.name}"]\n'
+                    mermaid += f'{node.id}["\\{node.name}"]{node_style} --> {elem.id}["{elem.name}"]{elem_style}\n'
                 else:
-                    mermaid += f'{node.id}["{node.name}"]{node_style} --> {elem.id}["{elem.name}"]\n'
+                    mermaid += f'{node.id}["{node.name}"]{node_style} --> {elem.id}["{elem.name}"]{elem_style}\n'
         # Ajouter des définitions de style
         mermaid += """
         
         classDef non_terminal fill:#bbf3ff,stroke:#333,stroke-width:2px,shape:ellipse;
+        classDef error fill:#fc1111,stroke:#333,stroke-width:2px,shape:ellipse;
+
         """
         return mermaid
 
