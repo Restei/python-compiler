@@ -2,7 +2,7 @@
 from collections import deque 
 import webbrowser
 unique_id = 0
-
+n=0
 class Node:
     """
     Classe représentant un nœud dans l'arbre syntaxique.
@@ -85,15 +85,17 @@ class Node:
         return False
 
     def is_non_terminal(self):
-        return self.name in ["file","def_etoile","stmt_etoile","def","arg","next_arg","suite","simple_stmt","simple_stmt_tail","simple_stmt_tail_tail","argument","next_argument","stmt","else","expr_init","expr_logic","expr_logic_tail","expr_comp","expr_comp_tail","comp_op","expr_low","expr_low_tail","expr_high","expr_high_tail","expr_unary","expr_primary","expr_primary_extra","expr_primary_tail2","expr_primary_tail","const","root" ]
+        return self.name in ["file","def_etoile","stmt_etoile","def","arg","next_arg","suite","simple_stmt","simple_stmt_tail","expr_primary_tail2","expr_primary_tail","simple_stmt_tail_tail","argument","next_argument","stmt","else","expr_init","expr_logic","expr_logic_tail","expr_comp","expr_comp_tail","comp_op","expr_low","expr_low_tail","expr_high","expr_high_tail","expr_unary","expr_primary","expr_primary_extra","expr_primary_tail2","expr_primary_tail","const","root" ]
     
-    def ajouter_fils_arbre(self,regle,terminé=False):
-        if terminé:
-            return self.getroot()
+    def ajouter_fils_arbre(self,regle,term=None):
         production = regle.split(" -> ")
         production2 = production[1].split()
-        noms = [elem for elem in production2 if not elem in ["NEWLINE","EOF",",","BEGIN","END"]]
-        if self.is_non_terminal() :
+        if not term is None:
+            for i in range(len(production2)):
+                if production2[i] in ["ident","integer"]:
+                    production2[i] = term
+        noms = [elem for elem in production2 if not elem in ["NEWLINE","EOF",",","BEGIN","END",":"]]
+        if self.name==production[0] :
             self.ajouter_fils(noms)
             return self.succ[0]
         else:
@@ -112,19 +114,138 @@ class Node:
             return self.father.next()
         else:
             return self.brother
+    
+    def suppr_vide(self):
+        if self.is_non_terminal() and self.succ==[]:
+            if not self.father is None:
+                succ = []
+                for i in range(len(self.father)):
+                    if self.father.succ[i]==self and i!=0:
+                        if i+1==len(self.father):
+                            self.father.succ[i-1].brother = None
+                        else:
+                            self.father.succ[i-1].brother =self.father.succ[i+1]
+                    else:
+                        succ.append(self.father.succ[i])
+                self.father.succ = succ
+        else:
+            for elem in self.succ:
+                elem.suppr_vide()
+
+    def replace_identifier(self,liste):
+        pile = [self]
+        while len(pile)>0 and len(liste)>0:
+            top = pile[0]
+            pile = top.succ+pile[1:]
+            if top.name=='ident':
+                top.name = liste[0]
+                liste = liste[1:]
+
+    def leaf_to_node(self):
+        succ = []
+        count = 0
+        term = ["def","return","print","if","for","and","or","+","-","*","//","<","<=",">",">=","==","=","!=","%","not","else"]
+        for elem in self:
+            if elem.name in term:
+                count+=1
+        if count==1:
+            for i in range(len(self)):
+                if self[i].name in term:
+                    self.name = self[i].name
+                else:
+                    succ.append(self[i])
+            self.succ = succ
+
+        for elem in self:
+            elem.leaf_to_node()
+
+    def binary_replace(self):
+        binary = ["expr_high","expr_low","expr_comp"]
+
+        if self.name=="expr_logic":
+            self.name = self[1].name
+            self.succ = self.succ[:1] +self[1].succ
+
+        if self.name in binary and self.succ!=[]:
+            if len(self.succ)==2:
+                nom = self.succ[1].name
+                self.succ[1].name=self.name
+                self.name = nom
+            else:
+                self.name = self.succ[0].name
+                self.succ = []
+
+        for elem in self:
+            elem.binary_replace()
+
+    def replace_not(self):
+        binary = ["expr_high","expr_low","expr_comp"]
+        for elem in self.succ:
+            elem.replace_not()
+        if self.name in binary:
+            for i in range(len(self)):
+                if self[i].name=='not':
+                    self.succ[i].name = self.name
+                    self.name = 'not'
+                    break
+    def replace(self):
+
+        for elem in self:
+            elem.replace()
+        if len(self)>1:
+            succ = []
+            for elem in self:
+                if elem.name !="ε":
+                    succ.append(elem)
+            self.succ = succ
+        if len(self) == 1 :
+            self.name = self[0].name
+            self.succ = self[0].succ
+
+    def AST(self,name="AST"):
+        self.name = "root"
+        self.replace()
+        self.leaf_to_node()
+        self.binary_replace()
+        self.suppr_vide()
+        self.dessine(name)
+
+    def depth(self):
+        if self.succ == []:
+            return 1
+        else :
+            return 1+max([elem.depth() for elem in self])
+        
+        
+    
         
     def to_mermaid(self):
-        size = unique_id
-        labels = []
+        """
+        Génère une représentation Mermaid améliorée de l'arbre syntaxique.
+        """
         mermaid = "flowchart TD\n"
         file = deque([self])
-        while(len(file)>0):
+        while file:
             node = file.popleft()
+            # Définir le style pour les nœuds terminaux et non terminaux
+            node_style = ":::non_terminal" if node.is_non_terminal() else ":::terminal"
             for elem in node:
                 file.append(elem)
-                mermaid = mermaid + f"{node.id}[{node.name}] --> {elem.id}['{elem.name}']\n"
+                elem_style = ":::error" if elem.name == "erreur" else ""
+                if node.name[0] in '+-*/%>':
+                    mermaid += f'{node.id}["\\{node.name}"]{node_style} --> {elem.id}["{elem.name}"]{elem_style}\n'
+                else:
+                    mermaid += f'{node.id}["{node.name}"]{node_style} --> {elem.id}["{elem.name}"]{elem_style}\n'
+        # Ajouter des définitions de style
+        mermaid += """
+        
+        classDef non_terminal fill:#bbf3ff,stroke:#333,stroke-width:2px,shape:ellipse;
+        classDef error fill:#fc1111,stroke:#333,stroke-width:2px,shape:ellipse;
+
+        """
         return mermaid
-    
+
+        
     def dessine(self,name = "arbre syntaxique"):
         """
         Dessine l'arbre syntaxique en utilisant mermaid.
@@ -134,13 +255,13 @@ class Node:
 
         root = self.getroot()
         mermaid = root.to_mermaid()
+#        print(mermaid)
         html = """
         <!DOCTYPE html>
         <html lang="fr">
         <head>
             <meta charset="UTF-8">
-            <meta name="viewport" content="width=device-width, initial-scale=1.0">
-            <title>Arbre syntaxique</title>
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">"""+f"<title>{name}</title>"+"""
             <script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
             <script>
                 mermaid.initialize({
@@ -148,14 +269,15 @@ class Node:
                 });
             </script>
         </head>
-        <body>
-            <h1>Arbre syntaxique</h1>
-            <div class="mermaid">""" +f"""
+        <body>""" + f"""
+            <h1>{name}</h1>
+            <div class="mermaid">
                 {mermaid}
             </div>
         </body>
         </html>
         """
+        #print(mermaid)
 
         fichier = open(f"./{name}.html",'w+')
         fichier.write(html)

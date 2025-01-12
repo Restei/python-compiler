@@ -4,40 +4,29 @@ from analyse_syntaxique.table_des_symboles import *
 from analyse_syntaxique.fonction_syntaxique import *
 
 
-path = "mini_python/"
-fichier = "variable.py"
+path = "Code/mini_python/"
 
-file = path + fichier
+file = path + "expression.py"
 
-Lex1 = Lexeur(lire_fichier(file))
 
-#print(lire_fichier("mini_python/variable.py"))
+contenu = lire_fichier(file)
 
-Tokens,errors = Lex1.Tokenisation()
-#affichage_fichier(file)
+# Créer un objet Lexeur
+lexeur = Lexeur(contenu)
 
-#for token in Tokens:
-#    print(repr(token))
-#    
-#for error in errors:
-#    print(repr(error))
+# Effectuer la tokenisation
+tokens, erreurs = lexeur.Tokenisation()
 
-#representation_TDS(creation_TDS(Tokens))
+# Affichage des tokens extraits
+print("Tokens extraits :")
+for token in tokens:
+    print(token)
 
-#try:
-#    parser = LL1Parser("""
-#                       a = 0""")  # Instancie le parseur LL(1)
-#    parser.parse()  # Lance l'analyse syntaxique
-#
-#    if parser.errors:
-#        # Si des erreurs syntaxiques sont détectées, les afficher
-#        print("\nErreurs syntaxiques détectées :")
-#        for erreur in parser.errors:
-#            print(erreur)
-#    else:
-#        print("\nAnalyse syntaxique réussie. Aucun problème détecté.")
-#except Exception as e:
-#    print(f"Une erreur critique est survenue : {e}")
+# Affichage des erreurs rencontrées
+if erreurs:
+    print("\nErreurs rencontrées :")
+    for erreur in erreurs:
+        print(erreur)
+# Effectuer le parsing avec les tokens extraits
+parse_with_tokens(tableau_des_symboles_directeur_ll1_ultime,tokens,"file")
 
-parse_with_tokens(tableau_des_symboles_directeur_ll1_ultime,Tokens,"file")
-#parse_with_tokens_and_build_tree(grammar,Tokens,"file")

@@ -354,9 +354,16 @@ def parse_with_tokens(ll1_table, tokens, start_symbol):
     Returns:
         bool: True si la chaîne est acceptée, sinon False avec un résumé des erreurs.
     """
-    # Initialiser la pile avec le symbole de départ
+    # Ajouter un token spécial EOF pour marquer la fin de la chaîne
+    #eof_token = BaseToken(TokenType.EOF, "$", -1, -1)
+    #tokens.append(eof_token)
+    
+    # Initialiser la pile avec le symbole de départ et EOF
     stack = [start_symbol]
-
+    ident_list =[]
+    for elem in tokens:
+        if elem.type == TokenType.IDENTIFIER:
+            ident_list.append(elem.value)
     # Pointeur sur le token courant
     index = 0
 
@@ -381,17 +388,24 @@ def parse_with_tokens(ll1_table, tokens, start_symbol):
 
         # Vérification 1 : Correspondance entre le sommet de la pile et le token courant
         if top == current_token.analyse_syntaxique():
-            print(f"Correspondance trouvée : {top}")
+            #print(f"Correspondance trouvée : {top}")
             # Ajouter le token correspondant comme enfant de l'AST
-            current_node.ajouter_fils_arbre(top, current_token.value)
             index += 1  # Passer au token suivant
 
         # Vérification 2 : Si le token courant est EOF
         elif current_token.type.value == "EOF":
-            if not stack:
-                # Si la pile est vide, l'analyse est terminée avec succès
-                print("Analyse terminée avec succès.")
+            # La pile contient $ et le token courant est également EOF
+            if current_token.type == TokenType.EOF:
+                #file.dessine()
+                #print("Analyse terminée avec succès.")
+                file.replace_identifier(ident_list)
                 file.AST()  # Construire l'AST final
+                # Afficher toutes les erreurs détectées
+                if errors:
+                    print("Analyse terminée avec des erreurs :")
+                    for error in errors:
+                        print(error)
+                    return False
                 return True
             else:
                 # Sinon, signaler une erreur de fin inattendue
@@ -408,15 +422,17 @@ def parse_with_tokens(ll1_table, tokens, start_symbol):
             if token_type in ll1_table[top]:
                 # Trouver la règle correspondante dans la table LL(1)
                 production = ll1_table[top][token_type]
-                print(f"Utilisation de la règle: {top} -> {production}")
-
+                #print(f"Utilisation de la règle: {production}")
+                # Ajouter un noeud correspondant à la règle dans l'arbre syntaxique
+                if token_type in ['ident','integer','string']:
+                    current_node = current_node.ajouter_fils_arbre(production,current_token.value)
+                else:
+                    current_node = current_node.ajouter_fils_arbre(production)
                 # Ajouter les symboles de la règle dans la pile
                 symbols = production.split("->")[1].strip().split()
                 if symbols != ["ε"]:  # Ignorer epsilon (productions vides)
                     stack = symbols + stack  # Ajouter les symboles dans la pile
 
-                # Ajouter un noeud correspondant à la règle dans l'AST
-                current_node = current_node.ajouter_fils_arbre(top)
             else:
                 # Aucune règle trouvée : ajouter une erreur syntaxique
                 expected_tokens = list(ll1_table[top].keys())
@@ -425,8 +441,12 @@ def parse_with_tokens(ll1_table, tokens, start_symbol):
                     f"Ligne {current_token.line}, colonne {current_token.column}. "
                     f"Attendu : {expected_tokens}, trouvé : {token_type}."
                 )
+                erreur = top + " -> erreur" 
+                top = stack[0]
+                current_node.ajouter_fils_arbre(erreur)
+
                 # Récupération : Passer au prochain point de synchronisation
-                index = synchroniser(tokens, index, ["NEWLINE", "EOF"])
+                index = synchroniser(tokens, index,ll1_table[top])
                 continue
 
         # Vérification 4 : Symbole inattendu au sommet de la pile
@@ -447,12 +467,6 @@ def parse_with_tokens(ll1_table, tokens, start_symbol):
             f"{[token.analyse_syntaxique() for token in remaining_tokens]}"
         )
 
-    # Afficher toutes les erreurs détectées
-    if errors:
-        print("Analyse terminée avec des erreurs :")
-        for error in errors:
-            print(error)
-        return False
 
     # Si aucune erreur n'a été rencontrée, l'analyse est réussie
     print("Analyse réussie.")

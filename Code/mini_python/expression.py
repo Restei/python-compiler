@@ -1,16 +1,14 @@
-<<<<<<< HEAD
-5+6 
-2 +  2
 
-def add(a, b):
+def add(a):
     return a + b
 
 def main():
-    result = add(5, 10)
-    print(result)
+    if a===b and a != c:
+        return 5*3///2+3-4
+    else:
+        if not a % 2<= 3  or b % 2 >= 2:
+            a=-5
+
+            print(3) 
 
 main()
-=======
-
-a=1
->>>>>>> de85a5aa44d84fd431413b5231a90922a36df867
