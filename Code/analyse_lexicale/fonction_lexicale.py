@@ -262,7 +262,10 @@ class Lexeur:
         while not self.fin_fichier:
             self.lire()
             self.Identification(tokens)
-        
+            
+        if self.string == True :
+            tokens.append(UnknownToken(self.token,self.ligne_position,self.position))
+            self.errors.append(StringMissing((self.ligne_position),(self.charactere_actuelle)))
         # Ajouter le token EOF à la fin
         tokens.append(BaseToken(TokenType.EOF, '', self.ligne_position, self.position))
         tokens2 = [tokens[0]]  # Liste des tokens sans sauts de ligne inutiles

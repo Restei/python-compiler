@@ -1,0 +1,93 @@
+
+        <!DOCTYPE html>
+        <html lang="fr">
+        <head>
+            <meta charset="UTF-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0"><title>AST</title>
+            <script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
+            <script>
+                mermaid.initialize({
+                    startOnLoad: true
+                });
+            </script>
+        </head>
+        <body>
+            <h1>AST</h1>
+            <div class="mermaid">
+                flowchart TD
+0["root"]:::non_terminal --> 1["def_etoile"]
+0["root"]:::non_terminal --> 2["simple_stmt"]
+1["def_etoile"]:::non_terminal --> 4["def"]
+1["def_etoile"]:::non_terminal --> 5["def"]
+2["simple_stmt"]:::non_terminal --> 312["main"]
+2["simple_stmt"]:::non_terminal --> 313["simple_stmt_tail"]
+4["def"]:::non_terminal --> 7["add"]
+4["def"]:::non_terminal --> 8["("]
+4["def"]:::non_terminal --> 9["a"]
+4["def"]:::non_terminal --> 10[")"]
+4["def"]:::non_terminal --> 11["return"]
+5["def"]:::non_terminal --> 55["a"]
+5["def"]:::non_terminal --> 56["("]
+5["def"]:::non_terminal --> 58[")"]
+5["def"]:::non_terminal --> 59["suite"]
+313["simple_stmt_tail"]:::non_terminal --> 314["("]
+313["simple_stmt_tail"]:::non_terminal --> 316[")"]
+11["return"]:::terminal --> 19["+"]
+59["suite"]:::non_terminal --> 61["if"]
+19["\+"]:::terminal --> 25["a"]
+19["\+"]:::terminal --> 26["b"]
+61["if"]:::terminal --> 64["and"]
+61["if"]:::terminal --> 65["return"]
+61["if"]:::terminal --> 66["else"]
+64["and"]:::terminal --> 68["=="]
+64["and"]:::terminal --> 89["!="]
+65["return"]:::terminal --> 125["+"]
+66["else"]:::non_terminal --> 178["suite"]
+68["=="]:::terminal --> 70["a"]
+68["=="]:::terminal --> 71["erreur"]:::error
+89["!="]:::terminal --> 91["a"]
+89["!="]:::terminal --> 92["c"]
+125["\+"]:::terminal --> 131["*"]
+125["\+"]:::terminal --> 132["-"]
+178["suite"]:::non_terminal --> 179["if"]
+131["\*"]:::terminal --> 133["5"]
+131["\*"]:::terminal --> 134["//"]
+132["\-"]:::terminal --> 156["3"]
+132["\-"]:::terminal --> 157["4"]
+179["if"]:::terminal --> 182["or"]
+179["if"]:::terminal --> 183["suite"]
+134["\//"]:::terminal --> 139["3"]
+134["\//"]:::terminal --> 140["expr_high_tail"]
+182["or"]:::terminal --> 186["<="]
+182["or"]:::terminal --> 222[">="]
+183["suite"]:::non_terminal --> 257["simple_stmt"]
+183["suite"]:::non_terminal --> 258["print"]
+140["expr_high_tail"]:::non_terminal --> 145["erreur"]:::error
+140["expr_high_tail"]:::non_terminal --> 146["2"]
+186["<="]:::terminal --> 188["%"]
+186["<="]:::terminal --> 189["3"]
+222["\>="]:::terminal --> 224["%"]
+222["\>="]:::terminal --> 225["2"]
+257["simple_stmt"]:::non_terminal --> 260["a"]
+257["simple_stmt"]:::non_terminal --> 261["="]
+258["print"]:::terminal --> 287["("]
+258["print"]:::terminal --> 288["3"]
+258["print"]:::terminal --> 289[")"]
+146["2"]:::terminal --> 148["/"]
+188["\%"]:::terminal --> 192["not"]
+188["\%"]:::terminal --> 193["2"]
+224["\%"]:::terminal --> 228["b"]
+224["\%"]:::terminal --> 229["2"]
+261["="]:::terminal --> 264["-"]
+192["not"]:::terminal --> 195["a"]
+264["\-"]:::terminal --> 276["5"]
+
+        
+        classDef non_terminal fill:#bbf3ff,stroke:#333,stroke-width:2px,shape:ellipse;
+        classDef error fill:#fc1111,stroke:#333,stroke-width:2px,shape:ellipse;
+
+        
+            </div>
+        </body>
+        </html>
+        

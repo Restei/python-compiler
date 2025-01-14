@@ -175,3 +175,7 @@ class UnclosedStringException(Exception):
         self.ligne = ligne
         self.token = token
         super().__init__(f"Unclosed string: '{token}' at line {ligne}.")
+
+class StringMissing(Exception):
+    def __init__(self,ligne,variable):
+        super().__init__(f"Line {ligne} : an \" is missing  in {variable}")
