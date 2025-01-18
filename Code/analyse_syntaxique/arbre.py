@@ -1,5 +1,6 @@
 
 from collections import deque 
+import re
 import webbrowser
 unique_id = 0
 n=0
@@ -16,6 +17,7 @@ class Node:
         """
 
         global unique_id
+        self.mermaid_id = 0
         self.id = unique_id 
         self.name = name
         self.succ = []
@@ -28,6 +30,9 @@ class Node:
     
     def __getitem__(self,i):
         return self.succ[i]
+    
+    def __setitem__(self,i):
+        self.succ[i]=i
 
     def __contains__(self,node):
         return node in self.succ
@@ -94,7 +99,7 @@ class Node:
             for i in range(len(production2)):
                 if production2[i] in ["ident","integer"]:
                     production2[i] = term
-        noms = [elem for elem in production2 if not elem in ["NEWLINE","EOF",",","BEGIN","END",":"]]
+        noms = [elem for elem in production2 if not elem in ["NEWLINE","EOF",",","BEGIN","END",":",")","("]]
         if self.name==production[0] :
             self.ajouter_fils(noms)
             return self.succ[0]
@@ -116,21 +121,17 @@ class Node:
             return self.brother
     
     def suppr_vide(self):
-        if self.is_non_terminal() and self.succ==[]:
-            if not self.father is None:
-                succ = []
-                for i in range(len(self.father)):
-                    if self.father.succ[i]==self and i!=0:
-                        if i+1==len(self.father):
-                            self.father.succ[i-1].brother = None
-                        else:
-                            self.father.succ[i-1].brother =self.father.succ[i+1]
-                    else:
-                        succ.append(self.father.succ[i])
-                self.father.succ = succ
-        else:
-            for elem in self.succ:
-                elem.suppr_vide()
+        for elem in self:
+            elem.suppr_vide()
+        index = []
+        i=0
+        while i in range (len(self)):
+            if self[i].is_non_terminal() and self[i].succ == []:
+                self.succ = self.succ[:i] + self.succ[i+1:]
+            else:
+                i+=1
+        
+
 
     def replace_identifier(self,liste):
         pile = [self]
@@ -154,40 +155,34 @@ class Node:
                     self.name = self[i].name
                 else:
                     succ.append(self[i])
-            self.succ = succ
-
+            self.succ = succ 
         for elem in self:
             elem.leaf_to_node()
 
+
     def binary_replace(self):
-        binary = ["expr_high","expr_low","expr_comp"]
-
-        if self.name=="expr_logic":
-            self.name = self[1].name
-            self.succ = self.succ[:1] +self[1].succ
-
-        if self.name in binary and self.succ!=[]:
-            if len(self.succ)==2:
-                nom = self.succ[1].name
-                self.succ[1].name=self.name
-                self.name = nom
-            else:
-                self.name = self.succ[0].name
-                self.succ = []
-
+        if self.is_non_terminal():
+            replaced = False
+            for i in range(len(self)):
+                if self[i].name in ["and","or","+","-","*","//","<","<=",">",">=","==","=","!=","%","not"] :
+                    name = self.name
+                    self.name = self[i].name
+                    self[i].name = name
+                    replaced = True
+            if not replaced:
+                terminal_son = False
+                exceptions = ["root","arg","argument","next_argument","expr_primary","suite"]
+                if self.name not in exceptions:
+                    for i in range(len(self)):
+                        if not self[i].is_non_terminal():
+                            name = self.name
+                            self.name = self[i].name
+                            self[i].name = name
+                            terminal_son = True                       
         for elem in self:
             elem.binary_replace()
 
-    def replace_not(self):
-        binary = ["expr_high","expr_low","expr_comp"]
-        for elem in self.succ:
-            elem.replace_not()
-        if self.name in binary:
-            for i in range(len(self)):
-                if self[i].name=='not':
-                    self.succ[i].name = self.name
-                    self.name = 'not'
-                    break
+
     def replace(self):
 
         for elem in self:
@@ -199,8 +194,26 @@ class Node:
                     succ.append(elem)
             self.succ = succ
         if len(self) == 1 :
-            self.name = self[0].name
-            self.succ = self[0].succ
+            if self.name != "suite" or self.succ[0].name == "ε":
+                self.name = self[0].name
+                self.succ = self[0].succ
+
+    def clean(self):
+        if len(self)>=1 :
+            if self.succ[0].name=="def_etoile":
+                self.succ[0].name = "def"
+            if self.succ[0].name=="arg":
+                self.succ = self[0].succ + self.succ[1:]
+            i=0
+            while i in range(len(self)):
+                if self[i].is_non_terminal() and len(self[i].succ)==1 and self[i].name != "suite" :
+                    self.succ = self.succ[:i] + self[i].succ + self.succ[i+1:]
+                else:
+                    i= i+1
+
+        for elem in self:
+            elem.clean()
+
 
     def AST(self,name="AST"):
         self.name = "root"
@@ -208,6 +221,7 @@ class Node:
         self.leaf_to_node()
         self.binary_replace()
         self.suppr_vide()
+        self.clean()
         self.dessine(name)
 
     def depth(self):
@@ -225,17 +239,20 @@ class Node:
         """
         mermaid = "flowchart TD\n"
         file = deque([self])
+        count = 1
         while file:
             node = file.popleft()
             # Définir le style pour les nœuds terminaux et non terminaux
             node_style = ":::non_terminal" if node.is_non_terminal() else ":::terminal"
             for elem in node:
+                elem.mermaid_id = count if elem.mermaid_id==0 else elem.mermaid_id
+                count+=1
                 file.append(elem)
                 elem_style = ":::error" if elem.name == "erreur" else ""
                 if node.name[0] in '+-*/%>':
-                    mermaid += f'{node.id}["\\{node.name}"]{node_style} --> {elem.id}["{elem.name}"]{elem_style}\n'
+                    mermaid += f'{node.mermaid_id}["\\{node.name}"]{node_style} --> {elem.mermaid_id}["{elem.name}"]{elem_style}\n'
                 else:
-                    mermaid += f'{node.id}["{node.name}"]{node_style} --> {elem.id}["{elem.name}"]{elem_style}\n'
+                    mermaid += f'{node.mermaid_id}["{node.name}"]{node_style} --> {elem.mermaid_id}["{elem.name}"]{elem_style}\n'
         # Ajouter des définitions de style
         mermaid += """
         
