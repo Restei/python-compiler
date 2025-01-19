@@ -161,27 +161,38 @@ class Node:
 
 
     def binary_replace(self):
+
+        # Liste des opérateurs binaires et unaires
+        binary_operators = {"and", "or", "+", "-", "*", "//", "<", "<=", ">", ">=", "==", "=", "!=", "%","not"}
+
+        # Vérifier si le nœud actuel est un non-terminal
         if self.is_non_terminal():
-            replaced = False
+            replaced = False  # Indicateur de remplacement
+
             for i in range(len(self)):
-                if self[i].name in ["and","or","+","-","*","//","<","<=",">",">=","==","=","!=","%","not"] :
-                    name = self.name
-                    self.name = self[i].name
-                    self[i].name = name
+                child = self[i]
+                # 🔹 Cas 1 : Un opérateur binaire doit être le nœud principal
+                if child.name in binary_operators and self.name not in binary_operators:
+                    # On échange le nom pour placer l'opérateur en tant que nœud principal
+                    self.name, self[i].name = self[i].name, self.name
                     replaced = True
-                    break
-            if not replaced:
-                terminal_son = False
-                exceptions = ["root","arg","argument","next_argument","expr_primary","suite"]
-                if self.name not in exceptions:
-                    for i in range(len(self)):
-                        if not self[i].is_non_terminal():
-                            name = self.name
-                            self.name = self[i].name
-                            self[i].name = name
-                            terminal_son = True                       
-        for elem in self:
-            elem.binary_replace()
+                    break  # On effectue un seul remplacement par passage
+
+            # 🔹 Cas 2 : Remplacement avec un terminal si aucun échange n'a eu lieu
+            #if not replaced:
+            #    exceptions = {"root", "arg", "argument", "next_argument", "expr_primary", "suite"}
+            #    if self.name not in exceptions:
+            #        for i, child in enumerate(self):
+            #            if not child.is_non_terminal():
+            #                # On échange avec un fils terminal si nécessaire
+            #                self.name, self[i].name = self[i].name, self.name
+            #                break  # Un seul échange suffit
+
+        # Appliquer récursivement la transformation sur les enfants
+        for child in self:
+            child.binary_replace()
+
+
 
 
     def replace(self):
@@ -207,8 +218,6 @@ class Node:
                     self.succ = [Node_def] + self.succ[1:]
                 i=0
                 while i<len(self):
-                    if self[i].name == "def":
-                        self.succ =self.succ[:i] + self.succ[i].succ + self.succ[i+1:]
                     if self[i].name == "def_etoile":
                         self.succ =self.succ[:i] + self.succ[i].succ + self.succ[i+1:]
                     i+=1
@@ -221,7 +230,13 @@ class Node:
                         if self[i].name in ["next_arg","next_argument"]:
                             self.succ =self.succ[:i] + self.succ[i].succ + self.succ[i+1:]
                         i+=1
-
+                if self.name == "expr_primary_extra":
+                    i=0
+                    while (i<len(self)):
+                        if self[i].name == "expr_primary_tail2":
+                            self.succ = self.succ[:i] + self.succ[i].succ + self.succ[i+1:]
+                        else:
+                            i+=1
                     
         
         for elem in self:
@@ -233,7 +248,7 @@ class Node:
         self.replace()
         self.leaf_to_node()
         self.clean()
-        #self.binary_replace()
+        self.binary_replace()
         self.suppr_vide()
         self.dessine(name)
 
