@@ -160,23 +160,49 @@ class Node:
             elem.leaf_to_node()
 
     def binary_replace(self):
-        binary = ["expr_high","expr_low","expr_comp"]
 
-        if self.name=="expr_logic":
-            self.name = self[1].name
-            self.succ = self.succ[:1] +self[1].succ
+        # Liste des opérateurs binaires et unaires
+        binary_operators = {"and", "or", "+", "-", "*", "//", "<", "<=", ">", ">=", "==", "=", "!=", "%"}
+        unary_operators = {"not", "-"}
 
-        if self.name in binary and self.succ!=[]:
-            if len(self.succ)==2:
-                nom = self.succ[1].name
-                self.succ[1].name=self.name
-                self.name = nom
-            else:
-                self.name = self.succ[0].name
-                self.succ = []
+        # Vérifier si le nœud actuel est un non-terminal
+        if self.is_non_terminal():
+            replaced = False  # Indicateur de remplacement
 
-        for elem in self:
-            elem.binary_replace()
+            for i in range(len(self)):
+                child = self[i]
+
+                # 🔹 Cas 1 : Un opérateur binaire doit être le nœud principal
+                if child.name in binary_operators and self.name not in binary_operators:
+                    # On échange le nom pour placer l'opérateur en tant que nœud principal
+                    self.name, self[i].name = self[i].name, self.name
+                    replaced = True
+                    break  # On effectue un seul remplacement par passage
+
+                # 🔹 Cas 2 : Un opérateur unaire doit être bien structuré
+                if child.name in unary_operators:
+                    if len(self.succ) > 1:  # Un opérateur unaire ne doit pas avoir plus d'un enfant
+                        new_node = Node(child.name, father=self)
+                        new_node.succ.append(self.succ.pop(i))  # L'opérateur devient un parent
+                        self.succ.insert(i, new_node)  # Remplace l'ancien nœud
+                    replaced = True
+                    break  # Un seul remplacement suffit
+
+            # 🔹 Cas 3 : Remplacement avec un terminal si aucun échange n'a eu lieu
+            if not replaced:
+                exceptions = {"root", "arg", "argument", "next_argument", "expr_primary", "suite"}
+                if self.name not in exceptions:
+                    for i, child in enumerate(self):
+                        if not child.is_non_terminal():
+                            # On échange avec un fils terminal si nécessaire
+                            self.name, self[i].name = self[i].name, self.name
+                            break  # Un seul échange suffit
+
+        # Appliquer récursivement la transformation sur les enfants
+        for child in self:
+            child.binary_replace()
+
+
 
     def replace_not(self):
         binary = ["expr_high","expr_low","expr_comp"]
