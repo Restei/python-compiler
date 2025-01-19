@@ -161,44 +161,38 @@ class Node:
 
     def binary_replace(self):
 
-        # Ensemble des opérateurs binaires
+
+        # Liste des opérateurs binaires (y compris "-")
         binary_operators = {"and", "or", "+", "-", "*", "//", "<", "<=", ">", ">=", "==", "=", "!=", "%", "not"}
 
-        # Vérifier si le nœud actuel est un non-terminal (il doit être une opération)
+        # Vérifier si le nœud actuel est un non-terminal
         if self.is_non_terminal():
-            replaced = False  # Indicateur pour savoir si un remplacement a eu lieu
+            replaced = False  # Indicateur de remplacement
 
             for i in range(len(self)):
                 child = self[i]
 
-                # 🔹 Cas 1 : Vérification et réorganisation des opérateurs binaires
+                # 🔹 Cas 1 : Un opérateur binaire doit être le nœud principal
                 if child.name in binary_operators and self.name not in binary_operators:
-                    # Assurer que l'opérateur devient bien le nœud principal
+                    # On échange le nom pour placer l'opérateur en tant que nœud principal
                     self.name, self[i].name = self[i].name, self.name
                     replaced = True
-                    break  # Un seul remplacement est suffisant par passage
+                    break  # Un seul remplacement par passage
 
-            # 🔹 Cas 2 : Si aucun remplacement n'a eu lieu, tenter un ajustement avec un terminal
+            # 🔹 Cas 2 : Remplacement avec un terminal si aucun échange n'a eu lieu
             if not replaced:
                 exceptions = {"root", "arg", "argument", "next_argument", "expr_primary", "suite"}
                 if self.name not in exceptions:
                     for i, child in enumerate(self):
                         if not child.is_non_terminal():
-                            # Échanger un terminal mal placé avec le nœud actuel
+                            # On échange avec un fils terminal si nécessaire
                             self.name, self[i].name = self[i].name, self.name
-                            break  # On ne fait qu'un seul échange par passage
+                            break  # Un seul échange suffit
 
-        # 🔹 Cas 3 : Ajustement si un opérateur binaire a un seul enfant (problème de structure)
-        if self.name in binary_operators and len(self.succ) == 1:
-            # Un opérateur binaire ne peut pas avoir un seul fils → restructuration
-            new_node = Node(self.name, father=self.father)
-            new_node.succ = self.succ  # Assigner les enfants actuels au nouveau nœud
-            self.succ = [new_node]
-            self.name = new_node.succ[0].name  # Correction du nom du nœud
-
-        # 🔹 Cas 4 : Réorganisation récursive pour traiter tous les niveaux de l'arbre
+        # Appliquer récursivement la transformation sur les enfants
         for child in self:
             child.binary_replace()
+
 
 
 
