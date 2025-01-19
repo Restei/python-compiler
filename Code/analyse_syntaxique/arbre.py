@@ -99,7 +99,7 @@ class Node:
             for i in range(len(production2)):
                 if production2[i] in ["ident","integer"]:
                     production2[i] = term
-        noms = [elem for elem in production2 if not elem in ["NEWLINE","EOF",",","BEGIN","END",":",")","("]]
+        noms = [elem for elem in production2 if not elem in ["NEWLINE","EOF",",","BEGIN","END",":","(",")"]]
         if self.name==production[0] :
             self.ajouter_fils(noms)
             return self.succ[0]
@@ -169,6 +169,7 @@ class Node:
                     self.name = self[i].name
                     self[i].name = name
                     replaced = True
+                    break
             if not replaced:
                 terminal_son = False
                 exceptions = ["root","arg","argument","next_argument","expr_primary","suite"]
@@ -200,17 +201,29 @@ class Node:
 
     def clean(self):
         if len(self)>=1 :
-            if self.succ[0].name=="def_etoile":
-                self.succ[0].name = "def"
-            if self.succ[0].name=="arg":
-                self.succ = self[0].succ + self.succ[1:]
-            i=0
-            while i in range(len(self)):
-                if self[i].is_non_terminal() and len(self[i].succ)==1 and self[i].name != "suite" :
-                    self.succ = self.succ[:i] + self[i].succ + self.succ[i+1:]
-                else:
-                    i= i+1
+                if self.name=="root" and self[0].name == "def_etoile":
+                    Node_def = Node("defs",self)
+                    Node_def.succ = [self[0]]
+                    self.succ = [Node_def] + self.succ[1:]
+                i=0
+                while i<len(self):
+                    if self[i].name == "def":
+                        self.succ =self.succ[:i] + self.succ[i].succ + self.succ[i+1:]
+                    if self[i].name == "def_etoile":
+                        self.succ =self.succ[:i] + self.succ[i].succ + self.succ[i+1:]
+                    i+=1
+                if self.name=="def" and self[0].name !="def":
+                    self.name = self[0].name
+                    self.succ = self.succ[1:]
+                if self.name in ["arg","argument"]:
+                    i=0
+                    while i<len(self):
+                        if self[i].name in ["next_arg","next_argument"]:
+                            self.succ =self.succ[:i] + self.succ[i].succ + self.succ[i+1:]
+                        i+=1
 
+                    
+        
         for elem in self:
             elem.clean()
 
@@ -219,9 +232,9 @@ class Node:
         self.name = "root"
         self.replace()
         self.leaf_to_node()
-        self.binary_replace()
-        self.suppr_vide()
         self.clean()
+        #self.binary_replace()
+        self.suppr_vide()
         self.dessine(name)
 
     def depth(self):
