@@ -90,7 +90,7 @@ class Node:
         return False
 
     def is_non_terminal(self):
-        return self.name in ["file","def_etoile","stmt_etoile","def","arg","next_arg","suite","simple_stmt","simple_stmt_tail","expr_primary_tail2","expr_primary_tail","simple_stmt_tail_tail","argument","next_argument","stmt","expr_init","expr_logic","expr_logic_tail","expr_comp","expr_comp_tail","comp_op","expr_low","expr_low_tail","expr_high","expr_high_tail","expr_unary","expr_primary","expr_primary_extra","expr_primary_tail2","expr_primary_tail","const","root" ]
+        return self.name in ["file","def_etoile","stmt_etoile","def","arg","next_arg","suite","simple_stmt","simple_stmt_tail","expr_primary_tail2","expr_primary_tail","simple_stmt_tail_tail","argument","next_argument","stmt","expr_init","expr_logic","expr_logic_tail","expr_comp","expr_comp_tail","comp_op","expr_low","expr_low_tail","expr_high","expr_high_tail","expr_unary","expr_primary","expr_primary_extra","expr_primary_tail2","expr_primary_tail","const","root","Liste","element liste","Appel fonction" ]
     
     def ajouter_fils_arbre(self,regle,term=None):
         production = regle.split(" -> ")
@@ -99,7 +99,7 @@ class Node:
             for i in range(len(production2)):
                 if production2[i] in ["ident","integer"]:
                     production2[i] = term
-        noms = [elem for elem in production2 if not elem in ["NEWLINE","EOF",",","BEGIN","END",":","(",")"]]
+        noms = [elem for elem in production2 if not elem in ["NEWLINE","EOF",",","BEGIN","END",":"]]
         if self.name==production[0] :
             self.ajouter_fils(noms)
             return self.succ[0]
@@ -162,11 +162,12 @@ class Node:
 
     def binary_replace(self):
 
-        # Liste des opérateurs binaires et unaires
-        binary_operators = {"and", "or", "+", "-", "*", "//", "<", "<=", ">", ">=", "==", "=", "!=", "%","not"}
+
+        # Liste des opérateurs binaires (y compris "-")
+        binary_operators = {"and", "or", "+", "-", "*", "//", "<", "<=", ">", ">=", "==", "=", "!=", "%", "not"}
 
         # Vérifier si le nœud actuel est un non-terminal
-        if self.is_non_terminal():
+        if self.is_non_terminal() and self.name not in ["expr_primary_extra","simple_stmt_tail_tail","expr_primary_tail"]:
             replaced = False  # Indicateur de remplacement
 
             for i in range(len(self)):
@@ -176,24 +177,20 @@ class Node:
                     # On échange le nom pour placer l'opérateur en tant que nœud principal
                     self.name, self[i].name = self[i].name, self.name
                     replaced = True
-                    break  # On effectue un seul remplacement par passage
-
+                    break  # Un seul remplacement par passage
             # 🔹 Cas 2 : Remplacement avec un terminal si aucun échange n'a eu lieu
-            #if not replaced:
-            #    exceptions = {"root", "arg", "argument", "next_argument", "expr_primary", "suite"}
-            #    if self.name not in exceptions:
-            #        for i, child in enumerate(self):
-            #            if not child.is_non_terminal():
-            #                # On échange avec un fils terminal si nécessaire
-            #                self.name, self[i].name = self[i].name, self.name
-            #                break  # Un seul échange suffit
+            if not replaced:
+                exceptions = {"root", "arg", "argument", "next_argument", "expr_primary", "suite"}
+                if self.name not in exceptions:
+                    for i, child in enumerate(self):
+                        if not child.is_non_terminal():
+                            # On échange avec un fils terminal si nécessaire
+                            self.name, self[i].name = self[i].name, self.name
+                            break  # Un seul échange suffit
 
         # Appliquer récursivement la transformation sur les enfants
         for child in self:
             child.binary_replace()
-
-
-
 
     def replace(self):
 
@@ -204,6 +201,7 @@ class Node:
             for elem in self:
                 if elem.name !="ε":
                     succ.append(elem)
+
             self.succ = succ
         if len(self) == 1 :
             if self.name != "suite" or self.succ[0].name == "ε":
@@ -217,10 +215,14 @@ class Node:
                     Node_def.succ = [self[0]]
                     self.succ = [Node_def] + self.succ[1:]
                 i=0
+                
                 while i<len(self):
-                    if self[i].name == "def_etoile":
+                    if self[i].name in ["def_etoile","stmt_etoile"]:
                         self.succ =self.succ[:i] + self.succ[i].succ + self.succ[i+1:]
-                    i+=1
+                    elif self[i].name in ["(",")"] and self.name!="expr_primary_tail":
+                        self.succ =self.succ[:i] + self.succ[i+1:]
+                    else:
+                        i+=1
                 if self.name=="def" and self[0].name !="def":
                     self.name = self[0].name
                     self.succ = self.succ[1:]
@@ -230,18 +232,58 @@ class Node:
                         if self[i].name in ["next_arg","next_argument"]:
                             self.succ =self.succ[:i] + self.succ[i].succ + self.succ[i+1:]
                         i+=1
-                if self.name == "expr_primary_extra":
+                if self.name in ["expr_primary_extra","simple_stmt_tail_tail"]:
                     i=0
                     while (i<len(self)):
-                        if self[i].name == "expr_primary_tail2":
+                        if self[i].name in ["expr_primary_tail2","simple_stmt_tail_tail"]:
                             self.succ = self.succ[:i] + self.succ[i].succ + self.succ[i+1:]
                         else:
                             i+=1
-                    
-        
+                if self.name=="simple_stmt":
+                    if self[1].name=="=" and len(self[1])==2:
+                        node = self[0]
+                        self.succ = self.succ[1:]
+                        new_node = self.succ[0][0]
+                        new_node.succ = [node] + new_node.succ
+                        self[0].succ = self[0].succ[1:]
+                        self.succ = [new_node] + self.succ
         for elem in self:
             elem.clean()
 
+
+    def rename(self):
+        i=0
+        while i<len(self):
+            if self[i].name in ["expr_logic","simple_stmt","expr_low","expr_high","expr_primary_tail"]:
+                self.succ = self.succ[:i] + self[i].succ + self.succ[i+1:]
+            elif self.name == "expr_primary":
+                if self[i].name in ["[","argument"]:
+                    self.succ = self.succ[:i] + self[i].succ + self.succ[i+1:]
+                elif self[i].name=="]":
+                    self.name = "Liste"
+                    self.succ=self.succ[:i]
+                else:
+                    i+=1
+            elif self[i].name == "simple_stmt_tail_tail":
+                self[i].name="element liste"
+                i+=1
+            elif self[i].name == "expr_primary_extra":
+                if self[i][-1].name == "]":
+                    self[i].name="element liste"
+                else:
+                    self[i].name="Appel fonction"
+
+                i+=1
+
+            else:
+                i+=1
+        
+        
+        for elem in self:
+            elem.rename()
+
+
+    
 
     def AST(self,name="AST"):
         self.name = "root"
@@ -250,6 +292,7 @@ class Node:
         self.clean()
         self.binary_replace()
         self.suppr_vide()
+        self.rename()
         self.dessine(name)
 
     def depth(self):
