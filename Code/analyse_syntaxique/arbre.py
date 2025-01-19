@@ -210,8 +210,13 @@ class Node:
 
     def clean(self):
         if len(self)>=1 :
+                if self.name == "simple_stmt_tail":
+                    print(self[0].name, self[0].succ)
+                    self.name = self[0].name
+                    self.succ = self[0].succ
+                    
                 if self.name=="root" and self[0].name == "def_etoile":
-                    Node_def = Node("defs",self)
+                    Node_def = Node("Liste de Fonctions",self)
                     Node_def.succ = [self[0]]
                     self.succ = [Node_def] + self.succ[1:]
                 i=0
