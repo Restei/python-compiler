@@ -256,6 +256,11 @@ class Node:
                 print(self[0].name, self[0].succ)
                 self.name = self[0].name
                 self.succ = self[0].succ
+        if self.name == "expr_comp":
+            print(self[0].name, self[0].succ)
+            self.name = self[0].name
+            self.succ = self[0].succ
+        
         for elem in self:
             elem.preclean()
 

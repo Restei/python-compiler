@@ -1,3 +1,2 @@
-fonction1(1,2,3,4)
-fonction2(a,b)
-fonction(3)
+a = 1 + 1 * 3 - 5 // 7
+
