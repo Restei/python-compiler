@@ -250,7 +250,7 @@ class Node:
         for elem in self:
             elem.clean()
 
-    def preclean(self):
+    def postclean(self):
         if len(self)>=1 :
             if self.name == "simple_stmt_tail":
                 print(self[0].name, self[0].succ)
@@ -266,7 +266,7 @@ class Node:
             self.succ = self[0].succ
         
         for elem in self:
-            elem.preclean()
+            elem.postclean()
 
 
 
@@ -309,7 +309,7 @@ class Node:
         self.replace()
         self.leaf_to_node()
         self.clean()
-        self.preclean()
+        self.postclean()
         self.binary_replace()
         self.suppr_vide()
         self.rename()
