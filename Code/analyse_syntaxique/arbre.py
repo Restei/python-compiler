@@ -252,11 +252,11 @@ class Node:
 
     def postclean(self):
         if len(self)>=1 :
-            if self.name == "simple_stmt_tail":
+            if self.name == "simple_stmt_tail" and self[0].name == "argument":
                 print(self[0].name, self[0].succ)
                 self.name = self[0].name
                 self.succ = self[0].succ
-        if self.name == "expr_comp":
+        elif self.name == "expr_comp":
             print(self[0].name, self[0].succ)
             self.name = self[0].name
             self.succ = self[0].succ
@@ -264,7 +264,8 @@ class Node:
             print(self[0].name, self[0].succ)
             self.name = self[0].name
             self.succ = self[0].succ
-        if self.name in ["+","-","and","or","*"]:
+        elif self.name in ["+","-","and","or","*"]:
+            print(self[0].name, self[0].succ)
             self.succ = self.succ[::-1]
         for elem in self:
             elem.postclean()
