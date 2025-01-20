@@ -4,8 +4,12 @@ from analyse_syntaxique.table_des_symboles import *
 from analyse_syntaxique.fonction_syntaxique import *
 
 
+path = "Code/mini_python/"
 
-contenu = lire_fichier("mini_python/expression.py")
+file = path + "expression.py"
+
+
+contenu = lire_fichier(file)
 
 # Créer un objet Lexeur
 lexeur = Lexeur(contenu)

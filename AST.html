@@ -1,0 +1,48 @@
+
+        <!DOCTYPE html>
+        <html lang="fr">
+        <head>
+            <meta charset="UTF-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0"><title>AST</title>
+            <script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
+            <script>
+                mermaid.initialize({
+                    startOnLoad: true
+                });
+            </script>
+        </head>
+        <body>
+            <h1>AST</h1>
+            <div class="mermaid">
+                flowchart TD
+0["root"]:::non_terminal --> 1["if"]
+0["root"]:::non_terminal --> 2["if"]
+1["if"]:::terminal --> 3["=="]
+1["if"]:::terminal --> 4["suite"]
+2["if"]:::terminal --> 5["=="]
+2["if"]:::terminal --> 6["suite"]
+2["if"]:::terminal --> 7["else"]
+3["=="]:::terminal --> 8["a"]
+3["=="]:::terminal --> 9["1"]
+4["suite"]:::non_terminal --> 10["="]
+5["=="]:::terminal --> 11["a"]
+5["=="]:::terminal --> 12["2"]
+6["suite"]:::non_terminal --> 13["="]
+7["else"]:::terminal --> 14["suite"]
+10["="]:::terminal --> 15["a"]
+10["="]:::terminal --> 16["2"]
+13["="]:::terminal --> 17["a"]
+13["="]:::terminal --> 18["1"]
+14["suite"]:::non_terminal --> 19["="]
+19["="]:::terminal --> 20["b"]
+19["="]:::terminal --> 21["6"]
+
+        
+        classDef non_terminal fill:#bbf3ff,stroke:#333,stroke-width:2px,shape:ellipse;
+        classDef error fill:#fc1111,stroke:#333,stroke-width:2px,shape:ellipse;
+
+        
+            </div>
+        </body>
+        </html>
+        
