@@ -210,11 +210,6 @@ class Node:
 
     def clean(self):
         if len(self)>=1 :
-                if self.name == "simple_stmt_tail":
-                    print(self[0].name, self[0].succ)
-                    self.name = self[0].name
-                    self.succ = self[0].succ
-                    
                 if self.name=="root" and self[0].name == "def_etoile":
                     Node_def = Node("Liste de Fonctions",self)
                     Node_def.succ = [self[0]]
@@ -254,6 +249,16 @@ class Node:
                         self.succ = [new_node] + self.succ
         for elem in self:
             elem.clean()
+
+    def preclean(self):
+        if len(self)>=1 :
+            if self.name == "simple_stmt_tail":
+                print(self[0].name, self[0].succ)
+                self.name = self[0].name
+                self.succ = self[0].succ
+        for elem in self:
+            elem.preclean()
+
 
 
     def rename(self):
@@ -295,6 +300,7 @@ class Node:
         self.replace()
         self.leaf_to_node()
         self.clean()
+        self.preclean()
         self.binary_replace()
         self.suppr_vide()
         self.rename()

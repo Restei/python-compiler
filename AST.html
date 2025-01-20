@@ -15,8 +15,18 @@
             <h1>AST</h1>
             <div class="mermaid">
                 flowchart TD
-0["root"]:::non_terminal --> 1["a"]
-1["a"]:::terminal --> 2["("]
+0["root"]:::non_terminal --> 1["fonction1"]
+0["root"]:::non_terminal --> 2["fonction2"]
+0["root"]:::non_terminal --> 3["fonction"]
+1["fonction1"]:::terminal --> 4["argument"]
+2["fonction2"]:::terminal --> 5["argument"]
+3["fonction"]:::terminal --> 6["3"]
+4["argument"]:::non_terminal --> 7["1"]
+4["argument"]:::non_terminal --> 8["2"]
+4["argument"]:::non_terminal --> 9["3"]
+4["argument"]:::non_terminal --> 10["4"]
+5["argument"]:::non_terminal --> 11["a"]
+5["argument"]:::non_terminal --> 12["b"]
 
         
         classDef non_terminal fill:#bbf3ff,stroke:#333,stroke-width:2px,shape:ellipse;
