@@ -218,46 +218,86 @@ class Node:
                 self.succ = self[0].succ
 
     def clean(self):
-        if len(self)>=1 :
-                if self.name=="root" and self[0].name == "def_etoile":
-                    Node_def = Node("Liste de Fonctions",self)
-                    Node_def.succ = [self[0]]
-                    self.succ = [Node_def] + self.succ[1:]
-                i=0
-                
-                while i<len(self):
-                    if self[i].name in ["def_etoile","stmt_etoile"]:
-                        self.succ =self.succ[:i] + self.succ[i].succ + self.succ[i+1:]
-                    elif self[i].name in ["(",")"] and self.name!="expr_primary_tail":
-                        self.succ =self.succ[:i] + self.succ[i+1:]
-                    else:
-                        i+=1
-                if self.name=="def" and self[0].name !="def":
-                    self.name = self[0].name
-                    self.succ = self.succ[1:]
-                if self.name in ["arg","argument"]:
-                    i=0
-                    while i<len(self):
-                        if self[i].name in ["next_arg","next_argument"]:
-                            self.succ =self.succ[:i] + self.succ[i].succ + self.succ[i+1:]
-                        i+=1
-                if self.name in ["expr_primary_extra","simple_stmt_tail_tail"]:
-                    i=0
-                    while (i<len(self)):
-                        if self[i].name in ["expr_primary_tail2","simple_stmt_tail_tail"]:
-                            self.succ = self.succ[:i] + self.succ[i].succ + self.succ[i+1:]
+    
+        #Nettoie l'AST en supprimant les nœuds non nécessaires et en réorganisant les structures.
+        #Assure que "Boucle for" et "Appel range" n'ont pas de nœuds non-terminaux inutiles.
+
+        if len(self) >= 1:
+            # 🔹 Cas 1 : Regrouper les fonctions sous un seul nœud "Liste de Fonctions"
+            if self.name == "root" and self[0].name == "def_etoile":
+                Node_def = Node("Liste de Fonctions", self)
+                Node_def.succ = [self[0]]
+                self.succ = [Node_def] + self.succ[1:]
+
+            i = 0
+            while i < len(self):
+                # Fusionner les nœuds inutiles
+                if self[i].name in ["def_etoile", "stmt_etoile"]:
+                    self.succ = self.succ[:i] + self.succ[i].succ + self.succ[i+1:]
+
+                # Supprimer les parenthèses inutiles sauf dans "expr_primary_tail"
+                elif self[i].name in ["(", ")"] and self.name != "expr_primary_tail":
+                    self.succ = self.succ[:i] + self.succ[i+1:]
+
+                # Suppression des non-terminaux sous "Boucle for"
+                elif self[i].name == "Boucle for":
+                    j = 0
+                    while j < len(self[i].succ):
+                        if self[i][j].is_non_terminal():
+                            # Fusionner les enfants de "for" avec lui-même
+                            self[i].succ = self[i].succ[:j] + self[i][j].succ + self[i].succ[j+1:]
                         else:
-                            i+=1
-                if self.name=="simple_stmt":
-                    if self[1].name=="=" and len(self[1])==2:
-                        node = self[0]
-                        self.succ = self.succ[1:]
-                        new_node = self.succ[0][0]
-                        new_node.succ = [node] + new_node.succ
-                        self[0].succ = self[0].succ[1:]
-                        self.succ = [new_node] + self.succ
+                            j += 1  # Passer au nœud suivant si pas de suppression
+
+                # Suppression des non-terminaux sous "Appel range"
+                elif self[i].name == "Appel range":
+                    j = 0
+                    while j < len(self[i].succ):
+                        if self[i][j].is_non_terminal():
+                            # Fusionner les enfants de "range" avec lui-même
+                            self[i].succ = self[i].succ[:j] + self[i][j].succ + self[i].succ[j+1:]
+                        else:
+                            j += 1  # Passer au nœud suivant si pas de suppression
+
+                else:
+                    i += 1  # Passer au prochain nœud si aucune modification n'est nécessaire
+
+            # Correction des définitions de fonctions
+            if self.name == "def" and self[0].name != "def":
+                self.name = self[0].name
+                self.succ = self.succ[1:]
+
+            # Suppression des nœuds intermédiaires inutiles pour les arguments
+            if self.name in ["arg", "argument"]:
+                i = 0
+                while i < len(self):
+                    if self[i].name in ["next_arg", "next_argument"]:
+                        self.succ = self.succ[:i] + self.succ[i].succ + self.succ[i+1:]
+                    i += 1
+
+            # Suppression des nœuds intermédiaires pour certaines expressions
+            if self.name in ["expr_primary_extra", "simple_stmt_tail_tail"]:
+                i = 0
+                while i < len(self):
+                    if self[i].name in ["expr_primary_tail2", "simple_stmt_tail_tail"]:
+                        self.succ = self.succ[:i] + self.succ[i].succ + self.succ[i+1:]
+                    else:
+                        i += 1
+
+            # Réorganisation des expressions simples d'affectation
+            if self.name == "simple_stmt":
+                if self[1].name == "=" and len(self[1]) == 2:
+                    node = self[0]
+                    self.succ = self.succ[1:]  # Supprimer le premier élément de "simple_stmt"
+                    new_node = self.succ[0][0]  # Prendre la première partie de l'affectation
+                    new_node.succ = [node] + new_node.succ  # Réorganiser l'affectation
+                    self[0].succ = self[0].succ[1:]  # Retirer l'ancien élément
+                    self.succ = [new_node] + self.succ  # Réinsérer la nouvelle structure
+
+        # 🔹 Appliquer récursivement la transformation aux enfants
         for elem in self:
             elem.clean()
+
 
     def postclean(self):
         if len(self)>=1 :
