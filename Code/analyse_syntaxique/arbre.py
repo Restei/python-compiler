@@ -161,7 +161,6 @@ class Node:
 
     def binary_replace(self):
 
-
         # Liste des opérateurs binaires (y compris "-")
         binary_operators = {"and", "or", "+", "-", "*", "//", "<", "<=", ">", ">=", "==", "=", "!=", "%", "not"}
 
@@ -193,8 +192,55 @@ class Node:
         for child in self:
             child.binary_replace()
 
+    def rename(self):
+        #Ajuste les noms des nœuds pour refléter la structure correcte de l'AST.Correction spécifique pour les boucles `for` et `range()`.
+        i = 0
+        while i < len(self):
+            #  Cas 1 : Fusionner les expressions logiques et arithmétiques pour éviter la surcharge
+            if self[i].name in ["expr_logic", "simple_stmt", "expr_low", "expr_high", "expr_primary_tail"]:
+                self.succ = self.succ[:i] + self[i].succ + self.succ[i+1:]
+            
+            # Cas 2 : Gestion des listes et appels de fonction
+            elif self.name == "expr_primary":
+                if self[i].name in ["[", "argument"]:
+                    self.succ = self.succ[:i] + self[i].succ + self.succ[i+1:]
+                elif self[i].name == "]":
+                    self.name = "Liste"
+                    self.succ = self.succ[:i]
+                else:
+                    i += 1
 
+            # Cas 3 : Correction des listes `simple_stmt_tail_tail`
+            elif self[i].name == "simple_stmt_tail_tail":
+                self[i].name = "element liste"
+                i += 1
 
+            #  Cas 4 : Correction des appels de fonction
+            elif self[i].name == "expr_primary_extra":
+                if self[i][-1].name == "]":
+                    self[i].name = "element liste"
+                else:
+                    self[i].name = "Appel fonction"
+                i += 1
+
+            # Cas 5 : **Correction de `for i in range(x):`**
+            elif self.name == "for":
+                if len(self) > 2 and self[1].name == "in":
+                    iter_node = self[2]  # L'élément qui suit "in"
+                    
+                    # Vérifier si c'est une fonction `range()`
+                    if iter_node.name == "expr_primary" and iter_node[0].name == "range":
+                        iter_node.name = "Range"  # Correction pour rendre `range` explicite
+                        iter_node.succ = iter_node[1:]  # Supprimer le mot `range`
+                    
+                    # Identifier la variable de boucle
+                    self[0].name = "Variable boucle"
+
+            else:
+                i += 1
+        #  Appliquer récursivement la transformation sur les enfants
+        for elem in self:
+            elem.rename()
 
     def replace_not(self):
         binary = ["expr_high","expr_low","expr_comp"]
