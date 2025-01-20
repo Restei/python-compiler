@@ -256,7 +256,7 @@ class Node:
                 print(self[0].name, self[0].succ)
                 self.name = self[0].name
                 self.succ = self[0].succ
-        elif self.name == "expr_comp":
+        if self.name == "expr_comp":
             print(self[0].name, self[0].succ)
             self.name = self[0].name
             self.succ = self[0].succ
@@ -311,10 +311,10 @@ class Node:
         self.replace()
         self.leaf_to_node()
         self.clean()
-        self.postclean()
         self.binary_replace()
         self.suppr_vide()
         self.rename()
+        self.postclean()
         self.dessine(name)
 
     def depth(self):

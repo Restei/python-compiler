@@ -1,10 +1,10 @@
-def fonction1(c,d):
-    if c == 1 and d != 1:
-        c = 3
+def f():
+    return 1
+def f(a,b):
+    if a == 1 and b !=1:
+        print(a)
     else:
-        print((c + d) * 5 )
-def fonction2(test):
-    return not test
+        print(b)
 a = 1
-b = 2
-c = fonction1(a,b)
+b = f(1,0)
+a = 1
