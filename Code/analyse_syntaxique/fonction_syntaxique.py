@@ -424,7 +424,7 @@ def parse_with_tokens(ll1_table, tokens, start_symbol):
                 production = ll1_table[top][token_type]
                 #print(f"Utilisation de la règle: {production}")
                 # Ajouter un noeud correspondant à la règle dans l'arbre syntaxique
-                if token_type in ['ident','integer','string']:
+                if token_type in ['integer','string']:
                     current_node = current_node.ajouter_fils_arbre(production,current_token.value)
                 else:
                     current_node = current_node.ajouter_fils_arbre(production)
@@ -448,6 +448,7 @@ def parse_with_tokens(ll1_table, tokens, start_symbol):
                 # Récupération : Passer au prochain point de synchronisation
                 if top in ll1_table:
                     index = synchroniser(tokens, index,ll1_table[top])
+                    print(tokens[index])
                 continue
 
         # Vérification 4 : Symbole inattendu au sommet de la pile

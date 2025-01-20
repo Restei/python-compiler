@@ -1,9 +1,9 @@
 
-def add(a,b):
-    return a + b * 5
+if(a == 1):
+    a = 2
+if(a == 2):
+    a = 1
+else:
+    b = 6
 
-def main():
-    result = add(5)
-    print(result)
 
-main()
