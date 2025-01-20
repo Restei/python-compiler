@@ -1,10 +1,9 @@
-def f():
-    return 1
-def f(a,b):
-    if a == 1 and b !=1:
-        print(a)
-    else:
-        print(b)
-a = 1
-b = f(1,0)
-a = 1
+def fonction1(a,b):
+    return a + b
+c = 1
+d = 2
+if c == 1 and d !=3:
+    d = fonction1(c,d)
+else:
+    d = 2 * (3+1) - d * c
+print(d)

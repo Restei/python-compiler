@@ -283,7 +283,7 @@ tableau_des_symboles_directeur_ll1_ultime = {
         ">=": "expr_primary_tail -> expr_primary_tail2",
         "==": "expr_primary_tail -> expr_primary_tail2",
         "!=": "expr_primary_tail -> expr_primary_tail2",
-        "(": "expr_primary_tail -> ( expr_init ) ",
+        "(": "expr_primary_tail -> ( argument ) ",
         ")": "expr_primary_tail -> expr_primary_tail2"
     },
     
@@ -455,7 +455,7 @@ def parse_with_tokens(ll1_table, tokens, start_symbol):
         else:
             errors.append(
                 f"Erreur syntaxique : Symbole inattendu '{top}' au sommet de la pile. "
-                f"Ligne {current_token.line}, colonne {current_token.column}."
+                f"Ligne {current_token.line}, colonne {current_token.column}"
             )
             # Récupération : Passer au prochain point de synchronisation
             index = synchroniser(tokens, index, ["NEWLINE", "EOF"])
