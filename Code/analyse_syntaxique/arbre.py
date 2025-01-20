@@ -100,6 +100,15 @@ class Node:
                 if production2[i] in ["ident","integer"]:
                     production2[i] = term
         noms = [elem for elem in production2 if not elem in ["NEWLINE","EOF",",","BEGIN","END",":"]]
+            #Correction pour "for" et "range"
+        if "for" in noms:
+            index = noms.index("for")
+            noms[index] = "Boucle for"
+
+        if "range" in noms:
+            index = noms.index("range")
+            noms[index] = "Appel range"
+
         if self.name==production[0] :
             self.ajouter_fils(noms)
             return self.succ[0]
