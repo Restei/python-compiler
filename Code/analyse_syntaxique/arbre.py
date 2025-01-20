@@ -99,7 +99,6 @@ class Node:
             for i in range(len(production2)):
                 if production2[i] in ["ident","integer"]:
                     production2[i] = term
-                    print(term)
                 elif production2[i] =="string":
                     production2[i]= "\'" +term[1:-1] + "\'"
         noms = [elem for elem in production2 if not elem in ["NEWLINE","EOF",",","BEGIN","END",":","(",")"]]
