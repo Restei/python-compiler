@@ -268,7 +268,7 @@ class Node:
                 i = 0
                 while i < len(self):
                     if self[i].name in ["expr_primary_tail2", "simple_stmt_tail_tail"]:
-                        self.succ = self.succ[1:i] + self.succ[i].succ + self.succ[i+1:-1]
+                        self.succ = self.succ[:i] + self.succ[i].succ + self.succ[i+1:]
                     else:
                         i += 1
 
