@@ -251,7 +251,7 @@ tableau_des_symboles_directeur_ll1_ultime = {
     },
     "expr_primary": { #ok1
         "ident": "expr_primary -> expr_primary_extra",
-        "(": "expr_primary -> ( argument )",
+        "(": "expr_primary -> ( expr_init )",
         "[": "expr_primary -> [ argument ]",
         "integer": "expr_primary -> const",
         "string": "expr_primary -> const",
