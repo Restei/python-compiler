@@ -217,7 +217,6 @@ tableau_des_symboles_directeur_ll1_ultime = {
     },
     "expr_high_tail": { #ok1
         "*": "expr_high_tail -> * expr_unary expr_high_tail",
-        "/": "expr_high_tail -> / expr_unary expr_high_tail",
         "//": "expr_high_tail -> // expr_unary expr_high_tail",
         "%": "expr_high_tail -> % expr_unary expr_high_tail",
         "+": "expr_high_tail -> ε",
@@ -264,7 +263,6 @@ tableau_des_symboles_directeur_ll1_ultime = {
     },
     "expr_primary_tail": { #ok
         "*": "expr_primary_tail -> expr_primary_tail2",
-        "/": "expr_primary_tail -> expr_primary_tail2",
         "//": "expr_primary_tail -> expr_primary_tail2",
         "%": "expr_primary_tail -> expr_primary_tail2",
         "+": "expr_primary_tail -> expr_primary_tail2",
@@ -306,7 +304,6 @@ tableau_des_symboles_directeur_ll1_ultime = {
         "+": "expr_primary_tail2 -> ε",
         "-": "expr_primary_tail2 -> ε",  
         "*": "expr_primary_tail2 -> ε",
-        "/": "expr_primary_tail2 -> ε",
         "//": "expr_primary_tail2 -> ε",
         "%": "expr_primary_tail2 -> ε",
     },
@@ -468,8 +465,10 @@ def parse_with_tokens(ll1_table, tokens, start_symbol):
             f"Erreur : Tokens non analysés restants : "
             f"{[token.analyse_syntaxique() for token in remaining_tokens]}"
         )
-
-
+    if errors:
+        print("Analyse terminée avec des erreurs :")
+        for error in errors:
+            print(error)
     # Si aucune erreur n'a été rencontrée, l'analyse est réussie
     print("Analyse réussie.")
     return True
