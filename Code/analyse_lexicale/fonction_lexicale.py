@@ -250,8 +250,12 @@ class Lexeur:
         # Vérifier les opérateurs binaires ou inconnus
         else:
             operator_token = self.binary()  
-            if operator_token:
-                tokens.append(operator_token)
+            if operator_token :
+                if operator_token.value !="/":
+                    tokens.append(operator_token)
+                elif operator_token.value =="/":
+                    tokens.append(UnknownToken(self.charactere_actuelle, self.ligne_position, self.position))
+                    self.errors.append(UnknowCaracters(self.ligne_position, self.charactere_actuelle))
             elif self.caractere_inconnu():
                 tokens.append(UnknownToken(self.charactere_actuelle, self.ligne_position, self.position))
                 self.errors.append(UnknowCaracters(self.ligne_position, self.charactere_actuelle))

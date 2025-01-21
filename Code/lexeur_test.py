@@ -86,7 +86,7 @@ expected_tokens = [('NEWLINE', '', 2, 20), ('KEYWORD', 'def', 2, 24), ('IDENTIFI
                    ('OPERATOR_UNARY', '=', 4, 97), ('IDENTIFIER', 'a', 4, 100), ('OPERATOR_UNARY', '+', 4, 101), ('IDENTIFIER', 'b', 4, 104), ('NEWLINE', '', 5, 116),
                    ('IDENTIFIER', 'produit', 5, 128), ('OPERATOR_UNARY', '=', 5, 129), ('IDENTIFIER', 'a', 5, 132), ('OPERATOR_UNARY', '*', 5, 133), 
                    ('IDENTIFIER', 'b', 5, 136), ('NEWLINE', '', 6, 154), ('IDENTIFIER', 'division', 6, 167), ('OPERATOR_UNARY', '=', 6, 168), ('IDENTIFIER', 'a', 6, 171), 
-                   ('OPERATOR_UNARY', '/', 6, 172), ('IDENTIFIER', 'b', 6, 175), ('NEWLINE', '', 7, 197), ('IDENTIFIER', 'reste', 7, 207), ('OPERATOR_UNARY', '=', 7, 208), 
+                   ('UNKNOWN', '/', 6, 172), ('IDENTIFIER', 'b', 6, 175), ('NEWLINE', '', 7, 197), ('IDENTIFIER', 'reste', 7, 207), ('OPERATOR_UNARY', '=', 7, 208), 
                    ('IDENTIFIER', 'a', 7, 211), ('OPERATOR_UNARY', '%', 7, 212), ('IDENTIFIER', 'b', 7, 215), ('NEWLINE', '', 8, 260), ('IDENTIFIER', 'quotient', 8, 273), 
                    ('OPERATOR_UNARY', '=', 8, 274), ('IDENTIFIER', 'a', 8, 277), ('OPERATOR_BINARY', '//', 8, 279), ('IDENTIFIER', 'b', 8, 282), ('NEWLINE', '', 9, 302), 
                    ('IDENTIFIER', 'puissance', 9, 316), ('OPERATOR_UNARY', '=', 9, 317), ('IDENTIFIER', 'a', 9, 320), ('OPERATOR_BINARY', '**', 9, 322), 
