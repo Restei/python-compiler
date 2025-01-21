@@ -39,11 +39,6 @@ def main():
     # Appel de la fonction avec des expressions complexes
     result = calcul_complexe(x, y)
 
-<<<<<<< HEAD
-  
-
-=======
->>>>>>> origin/main
 # Appel de la fonction principale
 if __name__ == "__main__":
     main()
