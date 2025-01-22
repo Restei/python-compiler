@@ -15,9 +15,8 @@
             <h1>AST</h1>
             <div class="mermaid">
                 flowchart TD
-0["root"]:::non_terminal --> 1["="]
-1["="]:::terminal --> 2["a"]
-1["="]:::terminal --> 3["1"]
+0["root"]:::non_terminal --> 1["a"]
+1["a"]:::terminal --> 2["erreur"]:::error
 
         
         classDef non_terminal fill:#bbf3ff,stroke:#333,stroke-width:2px,shape:ellipse;
