@@ -4,7 +4,7 @@ from analyse_syntaxique.table_des_symboles import *
 from analyse_syntaxique.fonction_syntaxique import *
 
 
-path = "Code/mini_python/"
+path = "mini_python/"
 
 file = path + "expression.py"
 

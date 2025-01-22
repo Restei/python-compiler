@@ -395,15 +395,10 @@ def parse_with_tokens(ll1_table, tokens, start_symbol):
             if current_token.type == TokenType.EOF:
                 #file.dessine()
                 #print("Analyse terminée avec succès.")
-                file.replace_identifier(ident_list)
-                file.AST()  # Construire l'AST final
+# Construire l'AST final
                 # Afficher toutes les erreurs détectées
-                if errors:
-                    print("Analyse terminée avec des erreurs :")
-                    for error in errors:
-                        print(error)
-                    return False
-                return True
+                top = stack.pop(0)
+                continue
             else:
                 # Sinon, signaler une erreur de fin inattendue
                 errors.append(
@@ -470,5 +465,8 @@ def parse_with_tokens(ll1_table, tokens, start_symbol):
         for error in errors:
             print(error)
     # Si aucune erreur n'a été rencontrée, l'analyse est réussie
+    
     print("Analyse réussie.")
+    file.replace_identifier(ident_list)
+    file.AST()  
     return True
