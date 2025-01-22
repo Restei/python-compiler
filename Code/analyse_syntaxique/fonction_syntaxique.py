@@ -461,10 +461,9 @@ def parse_with_tokens(ll1_table, tokens, start_symbol):
             f"{[token.analyse_syntaxique() for token in remaining_tokens]}"
         )
     if errors:
-        if errors != ['Erreur : Tokens non analysés restants : [None]']:
-            print(f"Analyse terminée avec des erreurs : {errors}")
-            for error in errors:
-                print(error)
+        print(f"Analyse terminée avec des erreurs : {errors}")
+        for error in errors:
+            print(error)
     # Si aucune erreur n'a été rencontrée, l'analyse est réussie
     else:
         print("Analyse réussie.")
