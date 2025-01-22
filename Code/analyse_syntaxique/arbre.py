@@ -3,7 +3,6 @@ from collections import deque
 import re
 import webbrowser
 unique_id = 0
-n=0
 class Node:
     """
     Classe représentant un nœud dans l'arbre syntaxique.
@@ -101,7 +100,7 @@ class Node:
                     production2[i] = term
                 elif production2[i] =="string":
                     production2[i]= "\'" +term[1:-1] + "\'"
-        noms = [elem for elem in production2 if not elem in ["NEWLINE","EOF",",","BEGIN","END",":","(",")"]]
+        noms = [elem for elem in production2 if not elem in ["NEWLINE","EOF",",","[","]",":","(",")","BEGIN","END"]]
             #Correction pour "for" et "range"
         if "for" in noms:
             index = noms.index("for")

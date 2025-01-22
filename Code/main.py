@@ -4,9 +4,9 @@ from analyse_syntaxique.table_des_symboles import *
 from analyse_syntaxique.fonction_syntaxique import *
 
 
-path = "mini_python/"
+path = "Code/mini_python/"
 
-file = path + "expression.py"
+file = path + "erreurs_lex.py"
 
 
 contenu = lire_fichier(file)
@@ -27,6 +27,12 @@ if erreurs:
     print("\nErreurs rencontrées :")
     for erreur in erreurs:
         print(erreur)
+
 # Effectuer le parsing avec les tokens extraits
-parse_with_tokens(tableau_des_symboles_directeur_ll1_ultime,tokens,"file")
+errors = parse_with_tokens(tableau_des_symboles_directeur_ll1_ultime,tokens,"file")
+    
+with open("./log.txt","w") as fichier:
+    for error in errors:
+        fichier.write(error + "\n")
+
 

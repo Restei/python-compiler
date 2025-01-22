@@ -367,13 +367,17 @@ def parse_with_tokens(ll1_table, tokens, start_symbol):
     # Initialisation de l'AST avec un noeud racine
     file = Node("file")  # Noeud racine de l'AST
     current_node = file  # Noeud actuel utilisé pour ajouter les enfants
-
+    save_token = tokens[0] if len(tokens)>0 else None
     while stack:
         # Extraire le sommet de la pile
         top = stack.pop(0)
         # Obtenir le token courant (ou None si on dépasse la liste)
         current_token = tokens[index] if index < len(tokens) else None
-
+        if save_token.type == TokenType.END:
+            if current_token.type != TokenType.END:
+                while current_node.name not in ["suite","file"]:
+                    current_node = current_node.father
+        save_token = current_token
         # Vérifier si le token courant est valide
         if current_token is None or not hasattr(current_token, "analyse_syntaxique"):
             # Ajouter une erreur lexicale si le token est invalide ou manquant
@@ -461,12 +465,12 @@ def parse_with_tokens(ll1_table, tokens, start_symbol):
             f"{[token.analyse_syntaxique() for token in remaining_tokens]}"
         )
     if errors:
-        print(f"Analyse terminée avec des erreurs : {errors}")
+        print(f"Analyse terminée avec des erreurs:")
         for error in errors:
             print(error)
     # Si aucune erreur n'a été rencontrée, l'analyse est réussie
-
-    print("Analyse réussie.")
-    file.replace_identifier(ident_list)
-    file.AST()  
-    return True
+    else:
+        print("Analyse réussie.")
+        file.replace_identifier(ident_list)
+        file.AST()  
+    return errors
