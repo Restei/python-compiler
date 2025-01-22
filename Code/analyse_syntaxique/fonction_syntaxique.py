@@ -373,6 +373,8 @@ def parse_with_tokens(ll1_table, tokens, start_symbol):
         top = stack.pop(0)
         # Obtenir le token courant (ou None si on dépasse la liste)
         current_token = tokens[index] if index < len(tokens) else None
+
+
         if save_token.type == TokenType.END:
             if current_token.type != TokenType.END:
                 while current_node.name not in ["suite","file"]:
@@ -410,6 +412,11 @@ def parse_with_tokens(ll1_table, tokens, start_symbol):
                     f"Impossible de compléter l'analyse."
                 )
                 break
+
+        elif current_token == TokenType.UNKNOWN:
+            index+=1
+            current_token = tokens[index] if index < len(tokens) else None
+            continue
 
         # Vérification 3 : Si le sommet de la pile est un non-terminal
         elif top in ll1_table:
