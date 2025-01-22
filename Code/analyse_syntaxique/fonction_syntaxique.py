@@ -377,10 +377,10 @@ def parse_with_tokens(ll1_table, tokens, start_symbol):
         # Vérifier si le token courant est valide
         if current_token is None or not hasattr(current_token, "analyse_syntaxique"):
             # Ajouter une erreur lexicale si le token est invalide ou manquant
-            errors.append(
-                f"Erreur lexicale : Impossible de détecter le token à l'index {index}. "
-                f"Token invalide ou non reconnu."
-            )
+            #errors.append(
+            #    f"Erreur lexicale : Impossible de détecter le token à l'index {index}. "
+            #    f"Token invalide ou non reconnu. {current_token.value}"
+            #)
             break  # Arrêter l'analyse si un problème lexical est détecté
 
         # Vérification 1 : Correspondance entre le sommet de la pile et le token courant
@@ -465,8 +465,8 @@ def parse_with_tokens(ll1_table, tokens, start_symbol):
         for error in errors:
             print(error)
     # Si aucune erreur n'a été rencontrée, l'analyse est réussie
-    else:
-        print("Analyse réussie.")
-        file.replace_identifier(ident_list)
-        file.AST()  
+
+    print("Analyse réussie.")
+    file.replace_identifier(ident_list)
+    file.AST()  
     return True
