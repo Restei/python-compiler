@@ -3,6 +3,7 @@ from collections import deque
 import re
 import webbrowser
 unique_id = 0
+n=0
 class Node:
     """
     Classe représentant un nœud dans l'arbre syntaxique.
@@ -89,7 +90,8 @@ class Node:
         return False
 
     def is_non_terminal(self):
-        return self.name in ["file","def_etoile","stmt_etoile","def","arg","next_arg","suite","simple_stmt","simple_stmt_tail","expr_primary_tail2","expr_primary_tail","simple_stmt_tail_tail","argument","next_argument","stmt","expr_init","expr_logic","expr_logic_tail","expr_comp","expr_comp_tail","comp_op","expr_low","expr_low_tail","expr_high","expr_high_tail","expr_unary","expr_primary","expr_primary_extra","expr_primary_tail2","expr_primary_tail","const","root","Liste","element liste","Appel fonction","Else" ]
+        return self.name in ["file","def_etoile","stmt_etoile","def","arg","next_arg","suite","simple_stmt","simple_stmt_tail","expr_primary_tail2","expr_primary_tail","simple_stmt_tail_tail","argument","next_argument","stmt","else","expr_init","expr_logic","expr_logic_tail","expr_comp","expr_comp_tail","comp_op","expr_low","expr_low_tail","expr_high","expr_high_tail","expr_unary","expr_primary","expr_primary_extra","expr_primary_tail2","expr_primary_tail","const","root" ]
+
     
     def ajouter_fils_arbre(self,regle,term=None):
         production = regle.split(" -> ")
@@ -98,6 +100,7 @@ class Node:
             for i in range(len(production2)):
                 if production2[i] in ["ident","integer"]:
                     production2[i] = term
+
                 elif production2[i] =="string":
                     production2[i]= "\'" +term[1:-1] + "\'"
         noms = [elem for elem in production2 if not elem in ["NEWLINE","EOF",",","[","]",":","(",")","BEGIN","END"]]
@@ -127,6 +130,21 @@ class Node:
             return self.brother
     
     def suppr_vide(self):
+        if self.is_non_terminal() and self.succ==[]:
+            if not self.father is None:
+                succ = []
+                for i in range(len(self.father)):
+                    if self.father.succ[i]==self and i!=0:
+                        if i+1==len(self.father):
+                            self.father.succ[i-1].brother = None
+                        else:
+                            self.father.succ[i-1].brother =self.father.succ[i+1]
+                    else:
+                        succ.append(self.father.succ[i])
+                self.father.succ = succ
+        else:
+            for elem in self.succ:
+                elem.suppr_vide()
         for elem in self:
             elem.suppr_vide()
         index = []
@@ -161,11 +179,21 @@ class Node:
                     self.name = self[i].name
                 else:
                     succ.append(self[i])
-            self.succ = succ 
+            self.succ = succ
+
         for elem in self:
             elem.leaf_to_node()
 
-
+    def replace_not(self):
+        binary = ["expr_high","expr_low","expr_comp"]
+        for elem in self.succ:
+            elem.replace_not()
+        if self.name in binary:
+            for i in range(len(self)):
+                if self[i].name=='not':
+                    self.succ[i].name = self.name
+                    self.name = 'not'
+                    break
     def binary_replace(self):
 
 
@@ -380,6 +408,7 @@ class Node:
         self.name = "root"
         self.replace()
         self.leaf_to_node()
+
         self.clean()
         self.binary_replace()
         self.suppr_vide()
@@ -399,6 +428,7 @@ class Node:
     
         
     def to_mermaid(self):
+
         """
         Génère une représentation Mermaid améliorée de l'arbre syntaxique.
         """
@@ -413,6 +443,7 @@ class Node:
                 elem.mermaid_id = count if elem.mermaid_id==0 else elem.mermaid_id
                 count+=1
                 file.append(elem)
+
                 elem_style = ":::error" if elem.name == "erreur" else ""
                 if node.name[0] in '+-*/%>':
                     mermaid += f'{node.mermaid_id}["\\{node.name}"]{node_style} --> {elem.mermaid_id}["{elem.name}"]{elem_style}\n'

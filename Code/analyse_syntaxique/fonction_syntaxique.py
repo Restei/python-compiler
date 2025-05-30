@@ -294,7 +294,7 @@ tableau_des_symboles_directeur_ll1_ultime = {
         "]": "expr_primary_tail2 -> ε",
         "in": "expr_primary_tail2 -> ε",
         "or": "expr_primary_tail2 -> ε",      
-        "and": "expr_primary_tail2 -> ε",  
+        "and": "expr_primary_tail2 -> ε", 
         "<": "expr_primary_tail2 -> ε",
         "<=": "expr_primary_tail2 -> ε",
         ">": "expr_primary_tail2 -> ε",
@@ -319,6 +319,7 @@ tableau_des_symboles_directeur_ll1_ultime = {
 # Nouvelle liste pour collecter les erreurs
 errors = []
 
+
 def synchroniser(tokens, index, points_synchronisation):
     """
     Avancer le pointeur des tokens jusqu'à atteindre un point de synchronisation.
@@ -336,7 +337,6 @@ def synchroniser(tokens, index, points_synchronisation):
     while index < len(tokens) and tokens[index].analyse_syntaxique() not in points_synchronisation:
         index += 1  # Avancer jusqu'à atteindre un point de synchronisation
     return index
-
 
 def parse_with_tokens(ll1_table, tokens, start_symbol):
     """
@@ -400,6 +400,7 @@ def parse_with_tokens(ll1_table, tokens, start_symbol):
             # La pile contient $ et le token courant est également EOF
             if current_token.type == TokenType.EOF:
                 #file.dessine()
+
                 #print("Analyse terminée avec succès.")
                 # Afficher toutes les erreurs détectées
                 top = stack.pop(0)
