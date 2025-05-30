@@ -1,16 +1,26 @@
-import plotly.graph_objects as go
-from igraph import *
-import igraph as ig
 
-
+from collections import deque 
+import webbrowser
 unique_id = 0
-
+n=0
 class Node:
-    def __init__(self,name):
+    """
+    Classe représentant un nœud dans l'arbre syntaxique.
+    """
+
+    def __init__(self,name,father= None):
+        """
+        Initialise un nœud avec un nom et un identifiant unique.
+
+        :param name: Nom du nœud (représentant la règle ou le contenu syntaxique).
+        """
+
         global unique_id
         self.id = unique_id 
         self.name = name
         self.succ = []
+        self.brother = None
+        self.father = father
         unique_id+=1
 
     def __repr__(self):
@@ -29,107 +39,252 @@ class Node:
         return len(self.succ)
 
     def __eq__(self,node):
-        if self.name != node.name:
-            return False
-        else:
-            if self.succ != node.succ:
-                return False
+        """
+        Compare deux nœuds pour déterminer s'ils sont égaux.
+
+        :param other: Autre nœud à comparer.
+        :return: True si les nœuds ont le même nom et les mêmes fils.
+        """
+        if self.id==node.id:
             return True
+        return False
 
     def number(self):
+        """
+        Retourne l'identifiant unique du nœud.
+
+        :return: Identifiant unique du nœud.
+        """
         return self.id
 
     def getname(self):
+        """
+        Retourne le nom du nœud.
+
+        :return: Nom du nœud.
+        """
         return self.name
-
-    def ajouter_fils(self,node):
-        self.succ.append(Node(node)) 
-
-
-
-    def dessine(self):
-        from collections import deque
         
-        g= Graph()
-        size = unique_id
-        g.add_vertices(size)
-        labels = []
+    def ajouter_fils(self,names):
+        """
+        Crée un nouveau nœud avec un nom donné et l'ajoute comme fils.
+
+        :param name: Nom du nœud fils à créer.
+        """
+        for elem in names:
+            fils = Node(elem,father = self)
+            if len(self.succ)==0:
+                self.succ.append(fils)
+            else:
+                self.succ[-1].brother = fils
+                self.succ.append(fils)
+    
+    def is_last(self):
+        if self.brother is None:
+            return True
+        return False
+
+    def is_non_terminal(self):
+        return self.name in ["file","def_etoile","stmt_etoile","def","arg","next_arg","suite","simple_stmt","simple_stmt_tail","expr_primary_tail2","expr_primary_tail","simple_stmt_tail_tail","argument","next_argument","stmt","else","expr_init","expr_logic","expr_logic_tail","expr_comp","expr_comp_tail","comp_op","expr_low","expr_low_tail","expr_high","expr_high_tail","expr_unary","expr_primary","expr_primary_extra","expr_primary_tail2","expr_primary_tail","const","root" ]
+    
+    def ajouter_fils_arbre(self,regle,term=None):
+        production = regle.split(" -> ")
+        production2 = production[1].split()
+        if not term is None:
+            for i in range(len(production2)):
+                if production2[i] in ["ident","integer"]:
+                    production2[i] = term
+        noms = [elem for elem in production2 if not elem in ["NEWLINE","EOF",",","BEGIN","END",":"]]
+        if self.name==production[0] :
+            self.ajouter_fils(noms)
+            return self.succ[0]
+        else:
+            if self.is_last() :
+                    return self.father.ajouter_fils_arbre(regle)
+            else:
+                return self.brother.ajouter_fils_arbre(regle)
+            
+    def getroot(self):
+        if self.father is None:
+            return self
+        return self.father.getroot()
+    
+    def next(self):
+        if self.is_last():
+            return self.father.next()
+        else:
+            return self.brother
+    
+    def suppr_vide(self):
+        if self.is_non_terminal() and self.succ==[]:
+            if not self.father is None:
+                succ = []
+                for i in range(len(self.father)):
+                    if self.father.succ[i]==self and i!=0:
+                        if i+1==len(self.father):
+                            self.father.succ[i-1].brother = None
+                        else:
+                            self.father.succ[i-1].brother =self.father.succ[i+1]
+                    else:
+                        succ.append(self.father.succ[i])
+                self.father.succ = succ
+        else:
+            for elem in self.succ:
+                elem.suppr_vide()
+
+    def replace_identifier(self,liste):
+        pile = [self]
+        while len(pile)>0 and len(liste)>0:
+            top = pile[0]
+            pile = top.succ+pile[1:]
+            if top.name=='ident':
+                top.name = liste[0]
+                liste = liste[1:]
+
+    def leaf_to_node(self):
+        succ = []
+        count = 0
+        term = ["def","return","print","if","for","and","or","+","-","*","//","<","<=",">",">=","==","=","!=","%","not","else"]
+        for elem in self:
+            if elem.name in term:
+                count+=1
+        if count==1:
+            for i in range(len(self)):
+                if self[i].name in term:
+                    self.name = self[i].name
+                else:
+                    succ.append(self[i])
+            self.succ = succ
+
+        for elem in self:
+            elem.leaf_to_node()
+
+    def binary_replace(self):
+        binary = ["expr_high","expr_low","expr_comp"]
+
+        if self.name=="expr_logic":
+            self.name = self[1].name
+            self.succ = self.succ[:1] +self[1].succ
+
+        if self.name in binary and self.succ!=[]:
+            if len(self.succ)==2:
+                nom = self.succ[1].name
+                self.succ[1].name=self.name
+                self.name = nom
+            else:
+                self.name = self.succ[0].name
+                self.succ = []
+
+        for elem in self:
+            elem.binary_replace()
+
+    def replace_not(self):
+        binary = ["expr_high","expr_low","expr_comp"]
+        for elem in self.succ:
+            elem.replace_not()
+        if self.name in binary:
+            for i in range(len(self)):
+                if self[i].name=='not':
+                    self.succ[i].name = self.name
+                    self.name = 'not'
+                    break
+    def replace(self):
+
+        for elem in self:
+            elem.replace()
+        if len(self)>1:
+            succ = []
+            for elem in self:
+                if elem.name !="ε":
+                    succ.append(elem)
+            self.succ = succ
+        if len(self) == 1 :
+            self.name = self[0].name
+            self.succ = self[0].succ
+
+    def AST(self,name="AST"):
+        self.name = "root"
+        self.replace()
+        self.leaf_to_node()
+        self.binary_replace()
+        self.suppr_vide()
+        self.dessine(name)
+
+    def depth(self):
+        if self.succ == []:
+            return 1
+        else :
+            return 1+max([elem.depth() for elem in self])
+        
+        
+    
+        
+    def to_mermaid(self):
+        mermaid = "flowchart TD\n"
         file = deque([self])
-        while (len(file)>0):
+        while(len(file)>0):
             node = file.popleft()
-            labels.append(node.getname())
             for elem in node:
-                g.add_edge(node.number(),elem.number())
                 file.append(elem)
+                if node.name[0] in '+-*/%>':
+                    ajout = f"{node.id}[\"\\{node.name}\"] --> "
+                else: 
+                    ajout = f"{node.id}[{node.name}] --> "
+                if elem.name[0] in '([])':
+                    ajout = ajout + f"{elem.id}[\"{elem.name}\"]\n"
+                else:
+                    ajout = ajout + f"{elem.id}[\" {elem.name}\"]\n"
+                mermaid = mermaid+ajout
+        return mermaid
+    
+    def dessine(self,name = "arbre syntaxique"):
+        """
+        Dessine l'arbre syntaxique en utilisant mermaid.
 
-        layout = g.layout("rt",root = [0])
+        Cette méthode crée une page html contenant l'arbre syntaxique.
+        """
 
-        position = {k: layout[k] for k in range(size)}
-        Y = [layout[k][1] for k in range(size)]
-        M = max(Y)
+        root = self.getroot()
+        mermaid = root.to_mermaid()
+#        print(mermaid)
+        html = """
+        <!DOCTYPE html>
+        <html lang="fr">
+        <head>
+            <meta charset="UTF-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">"""+f"<title>{name}</title>"+"""
+            <script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
+            <script>
+                mermaid.initialize({
+                    startOnLoad: true
+                });
+            </script>
+        </head>
+        <body>""" + f"""
+            <h1>{name}</h1>
+            <div class="mermaid">
+                {mermaid}
+            </div>
+        </body>
+        </html>
+        """
+        #print(mermaid)
 
-        es = EdgeSeq(g) # sequence of edges
-        E = [e.tuple for e in g.es] # list of edges
+        fichier = open(f"./{name}.html",'w+')
+        fichier.write(html)
+        fichier.close()
 
-        L = len(position)
-        Xn = [position[k][0] for k in range(L)]
-        Yn = [2*M-position[k][1] for k in range(L)]
-        Xe = []
-        Ye = []
-        for edge in E:
-            Xe+=[position[edge[0]][0],position[edge[1]][0], None]
-            Ye+=[2*M-position[edge[0]][1],2*M-position[edge[1]][1], None]
+        webbrowser.open(f"./{name}.html")
+       
+# Exemple d'utilisation de la classe Node
+if __name__ == "__main__":
+    root = Node("Root")
+    child1 = Node("Child1")
+    child2 = Node("Child2")
 
-        fig = go.Figure()
+    root.ajouter_fils_noeud(child1)
+    root.ajouter_fils_noeud(child2)
 
-        axis = dict(showline=False, # hide axis line, grid, ticklabels and  title
-            zeroline=False,
-            showgrid=False,
-            showticklabels=False,
-            )
+    root.dessine()
 
-        fig.add_trace(go.Scatter(x=Xn,
-                  y=Yn,
-                  mode='markers',
-                  name='noeuds',
-                  marker=dict(symbol='circle-dot',
-                                size=25,
-                                color='#6175c1',    #'#DB4551',
-                                line=dict(color='rgb(50,50,50)', width=1)
-                                ),
-                  text=labels,
-                  hoverinfo='text',
-                  opacity=1.0
-                  ))
-        
-        fig.add_trace(go.Scatter(x=Xe,
-                   y=Ye,
-                   mode='lines',
-                   line=dict(color='rgb(210,210,210)', width=2),
-                   hoverinfo='none',
-                   ))
-        fig.update_layout(
-              font_size=12,
-              showlegend=False,
-              xaxis=axis,
-              yaxis=axis,
-              hovermode='closest',
-              )
-        
 
-        
-        fig.show()
-
-        
-        
-
-R = Node("Root")
-R.ajouter_fils("R")
-
-R.ajouter_fils("RU")
-
-R.ajouter_fils("RUS")
-R[0].ajouter_fils("2")
-
-R[0].ajouter_fils("R5")
-R.dessine()
