@@ -1,0 +1,29 @@
+
+        <!DOCTYPE html>
+        <html lang="fr">
+        <head>
+            <meta charset="UTF-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0"><title>AST</title>
+            <script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
+            <script>
+                mermaid.initialize({
+                    startOnLoad: true
+                });
+            </script>
+        </head>
+        <body>
+            <h1>AST</h1>
+            <div class="mermaid">
+                flowchart TD
+0["root"]:::non_terminal --> 1["a"]
+1["a"]:::terminal --> 2["erreur"]:::error
+
+        
+        classDef non_terminal fill:#bbf3ff,stroke:#333,stroke-width:2px,shape:ellipse;
+        classDef error fill:#fc1111,stroke:#333,stroke-width:2px,shape:ellipse;
+
+        
+            </div>
+        </body>
+        </html>
+        

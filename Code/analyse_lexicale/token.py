@@ -162,5 +162,20 @@ class NumberTooLongException(Exception):
     def __init__(self, ligne, token):
         self.ligne = ligne
         self.token = token
+        super().__init__(f"Line {ligne} :Le nombre {token} est trop long")
         
-        super().__init__(f"Le nombre {token} à la ligne {ligne} est trop long.")
+class InvalidFloatException(Exception):
+    def __init__(self, ligne, token):
+        self.ligne = ligne
+        self.token = token
+        super().__init__(f"Invalid float: '{token}' at line {ligne}.")
+
+class UnclosedStringException(Exception):
+    def __init__(self, ligne, token):
+        self.ligne = ligne
+        self.token = token
+        super().__init__(f"Unclosed string: '{token}' at line {ligne}.")
+
+class StringMissing(Exception):
+    def __init__(self,ligne,variable):
+        super().__init__(f"Line {ligne} : an \" is missing  in {variable}")
